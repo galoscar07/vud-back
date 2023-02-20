@@ -174,3 +174,5 @@ CORS_ORIGIN_WHITELIST = [
 # TODO Remove this
 CORS_ORIGIN_ALLOW_ALL = True
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
