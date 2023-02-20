@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-6vzevt241lb^)k)5qj=^#w1&*btut9inc_4c-#i_^gzjm34gl7'
 
 AUTH_USER_MODEL = 'authentication.User'
-DEBUG = True if os.environ.get('ENV') == 'dev' else False
+DEBUG = False
 
 # TODO complete this with FE
 ALLOWED_HOSTS = []
