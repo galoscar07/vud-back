@@ -26,7 +26,9 @@ AUTH_USER_MODEL = 'authentication.User'
 DEBUG = False
 
 # TODO complete this with FE
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'https://vud-fe.herokuapp.com/'
+]
 
 # Application definition
 INSTALLED_APPS = [
