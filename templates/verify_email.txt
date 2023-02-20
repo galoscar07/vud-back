@@ -1,0 +1,1 @@
+Hello {{ email }} - clink on the link to activate your email {{ url }}
