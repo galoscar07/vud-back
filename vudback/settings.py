@@ -28,6 +28,7 @@ DEBUG = True
 # TODO complete this with FE
 ALLOWED_HOSTS = [
     'https://vud-fe.herokuapp.com/',
+    'https://vud-be.herokuapp.com/'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -176,6 +177,8 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'https://vud-be.herokuapp.com/',
+    'https://vud-fe.herokuapp.com/'
 ]
 
 # TODO Remove this
