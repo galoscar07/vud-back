@@ -1,11 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
+from phonenumber_field.modelfields import PhoneNumberField
 from rest_framework_simplejwt.tokens import RefreshToken
-from phonenumbers import PhoneNumber
-
-USER_TYPES = (
-    ()
-)
 
 
 class UserManager(BaseUserManager):
@@ -48,9 +44,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Fields for user
     first_name = models.CharField(max_length=255, blank=True)
     last_name = models.CharField(max_length=255, blank=True)
-    phone_number = PhoneNumber(blank=True)
+    phone_number = PhoneNumberField(blank=True)
     contact_email = models.EmailField(blank=True)
-    phone_number_optional = PhoneNumber(blank=True)
+    phone_number_optional = PhoneNumberField(blank=True)
     contact_email_optional = models.EmailField(blank=True)
 
     USERNAME_FIELD = 'email'
