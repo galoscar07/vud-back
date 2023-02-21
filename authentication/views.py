@@ -119,6 +119,7 @@ class RequestPasswordResetAPIView(generics.GenericAPIView):
     serializer_class = ResetPasswordEmailSerializer
 
     def post(self, request):
+        import pdb;pdb.set_trace()
         data = {'request': request, 'data': request.data}
         email = request.data.get('email', '')
 
@@ -142,7 +143,8 @@ class RequestPasswordResetAPIView(generics.GenericAPIView):
             Util.send_email(data=data, email_type='verify-email')
             print(absolute_url)
 
-        return Response({'url': absolute_url}, status=status.HTTP_200_OK)
+            return Response({'url': absolute_url}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 class PasswordTokenCheckAPIView(generics.GenericAPIView):
