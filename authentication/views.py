@@ -132,8 +132,9 @@ class RequestPasswordResetAPIView(generics.GenericAPIView):
             token = PasswordResetTokenGenerator().make_token(user)
             # TODO: Put FE link to redirect
             current_site = get_current_site(request=request)
-            relative_link = reverse('password-reset-confirm', kwargs={'uidb': uidb64, 'token': token})
-            absolute_url = f'http://{current_site}{relative_link}'
+            absolute_url = f'https://vud-fe.herokuapp.com/reset-password/?token={str(token)}&uidb={str(uidb64)}'
+            # relative_link = reverse('password-reset-confirm', kwargs={'uidb': uidb64, 'token': token})
+            # absolute_url = f'http://{current_site}{relative_link}'
             data = {
                 'url': absolute_url,
                 'email': user.email
