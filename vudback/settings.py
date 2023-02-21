@@ -27,13 +27,13 @@ DEBUG = True
 
 # TODO complete this with FE
 ALLOWED_HOSTS = [
-    'https://vud-fe.herokuapp.com/',
-    'https://vud-be.herokuapp.com/'
+    'https://vud-fe.herokuapp.com',
+    'https://vud-be.herokuapp.com'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://vud-fe.herokuapp.com/',
-    'https://vud-be.herokuapp.com/'
+    'https://vud-fe.herokuapp.com',
+    'https://vud-be.herokuapp.com'
 ]
 
 # Application definition
