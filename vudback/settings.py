@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     # Installed Apps
     'drf_yasg',
     'corsheaders',
+    'phonenumber_field',
 
     # Our Apps
     'authentication',

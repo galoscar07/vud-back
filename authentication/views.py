@@ -7,17 +7,17 @@ from django.conf import settings
 from django.utils.encoding import smart_bytes, smart_str, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
-from rest_framework import generics, status, views
+from rest_framework import generics, status, views, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from authentication.serializers import RegisterSerializer, EmailVerificationSerializer, LoginSerializer, \
-    ResetPasswordEmailSerializer, SetNewPasswordSerializer, PasswordTokenCheckSerializer
+    ResetPasswordEmailSerializer, SetNewPasswordSerializer, PasswordTokenCheckSerializer, UserSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from .models import User
+from .models import User, Clinic, Doctor
 from .utils import Util
 
 
@@ -51,7 +51,6 @@ class RegisterView(generics.GenericAPIView):
 
 
 class VerifyEmail(views.APIView):
-
     serializer_class = EmailVerificationSerializer
     token_param_config = openapi.Parameter('token',
                                            in_=openapi.IN_QUERY,
@@ -165,5 +164,47 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({'success': True, 'message': 'Password reset success'}, status=status.HTTP_200_OK)
+
+
+class GetUserProfileAPIView(generics.RetrieveAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        user = self.request.user
+        # if the user is logged
+        if user.is_authenticated:
+            # if the user is a student
+            if user.is_clinic:
+                return user.clinic_profile
+            elif user.is_doctor:
+                return user.doctor_profile
+            else:
+                return Response({'error': 'No profile'}, status=401)
+        return Response({'error': 'Authentication credentials were not provided.'}, status=401)
+
+
+class UserViewSet(generics.GenericAPIView):
+    serializer_class = UserSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        is_clinic = request.data.get('is_clinic', None)
+        is_doctor = request.data.get('is_doctor', None)
+
+        if is_clinic is not None:
+            user.is_clinic = is_clinic
+            clinic = Clinic.objects.create(user=user)
+            clinic.save()
+        elif is_doctor is not None:
+            user.is_doctor = is_doctor
+            doctor = Doctor.objects.create(user=user)
+            doctor.save()
+
+        user.save()
+
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
 
 

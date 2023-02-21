@@ -107,3 +107,9 @@ class SetNewPasswordSerializer(serializers.Serializer):
             pass
         except Exception as e:
             raise AuthenticationFailed('The reset link is invalid', 401)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        field = '__all__'

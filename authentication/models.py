@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
 from rest_framework_simplejwt.tokens import RefreshToken
+from phonenumbers import PhoneNumber
 
 USER_TYPES = (
     ()
@@ -44,6 +45,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_clinic = models.BooleanField(default=False)
     is_doctor = models.BooleanField(default=False)
 
+    # Fields for user
+    first_name = models.CharField(max_length=255, blank=True)
+    last_name = models.CharField(max_length=255, blank=True)
+    phone_number = PhoneNumber(blank=True)
+    contact_email = models.EmailField(blank=True)
+    phone_number_optional = PhoneNumber(blank=True)
+    contact_email_optional = models.EmailField(blank=True)
+
     USERNAME_FIELD = 'email'
     # REQUIRED_FIELDS = ['email']
 
@@ -60,14 +69,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         }
 
 
+class Clinic(models.Model):
+    user = models.OneToOneField(User, related_name='clinic_profile', on_delete=models.CASCADE)
+    role = models.CharField(max_length=255, blank=True)
+    company = models.CharField(max_length=255, blank=True)
+    # TODO add the rest of the fields
+
+
 class Doctor(models.Model):
     user = models.OneToOneField(User, related_name='doctor_profile', on_delete=models.CASCADE)
     # TODO add the rest of the fields
 
-
-class Clinic(models.Model):
-    user = models.OneToOneField(User, related_name='clinic_profile', on_delete=models.CASCADE)
-    # TODO add the rest of the fields
 
 
 
