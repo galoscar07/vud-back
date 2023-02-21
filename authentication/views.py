@@ -35,9 +35,9 @@ class RegisterView(generics.GenericAPIView):
         token = RefreshToken.for_user(user).access_token
 
         # TODO: Put FE link to redirect
-        current_site = get_current_site(request)
-        relative_link = reverse('email-verify')
-        absolute_url = f'http://{current_site}{relative_link}?token={str(token)}'
+        # current_site = get_current_site(request)
+        # relative_link = reverse('email-verify')
+        absolute_url = f'https://vud-fe.herokuapp.com/email-verification/?token={str(token)}'
 
         data = {
             'url': absolute_url,
@@ -84,9 +84,10 @@ class VerifyEmailResend(generics.GenericAPIView):
         try:
             user = User.objects.get(email=request.data.get('email'))
             token = RefreshToken.for_user(user).access_token
-            current_site = get_current_site(request)
-            relative_link = reverse('email-verify')
-            absolute_url = f'http://{current_site}{relative_link}?token={str(token)}'
+            # current_site = get_current_site(request)
+            # relative_link = reverse('email-verify')
+            absolute_url = f'https://vud-fe.herokuapp.com/email-verification/?token={str(token)}'
+            # absolute_url = f'http://{current_site}{relative_link}?token={str(token)}'
 
             data = {
                 'url': absolute_url,
