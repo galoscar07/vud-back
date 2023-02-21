@@ -12,8 +12,9 @@ class UserManager(BaseUserManager):
     def create_user(self, email, username=None, password=None):
         # if username is None:
         #     raise TypeError('Users should have a username')
-        if email is None:
-            raise TypeError('Users should have a email')
+        # import pdb;pdb.set_trace()
+        # if email is None:
+        #     raise TypeError('Users should have a email')
         user = self.model(email=self.normalize_email(email))
         user.set_password(password)
         user.save()
