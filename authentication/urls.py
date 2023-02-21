@@ -22,6 +22,6 @@ urlpatterns = [
     # Get user profile
     path('get-user-profile/', GetUserProfileAPIView.as_view(), name='get-user-profile'),
 
-    # Modify the user teacher or student status
-    path('update-user-profile/', UserViewSet.as_view(), name='modify-user-profile')
+    # Modify the user clinic or doctor status
+    path('update-user-profile-type/', UserViewSet.as_view(), name='modify-user-profile')
 ]

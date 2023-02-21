@@ -6,7 +6,7 @@ from django.utils.http import urlsafe_base64_decode
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 
-from authentication.models import User
+from authentication.models import User, Doctor, Clinic
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -109,7 +109,19 @@ class SetNewPasswordSerializer(serializers.Serializer):
             raise AuthenticationFailed('The reset link is invalid', 401)
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserUpdateUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
+        fields = ['is_clinic', 'is_doctor']
+
+
+class DoctorProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = '__all__'
+
+
+class ClinicProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Clinic
         fields = '__all__'
