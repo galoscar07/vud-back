@@ -8,3 +8,7 @@ class Footerlabels(models.Model):
 
     class Meta:
         ordering = ['created']
+
+
+class MedicalUnityTypes(models.Model):
+    label = models.CharField(max_length=60)

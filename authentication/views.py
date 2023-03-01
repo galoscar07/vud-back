@@ -20,6 +20,7 @@ from authentication.serializers import RegisterSerializer, EmailVerificationSeri
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
+from footerlabels.models import MedicalUnityTypes
 from .models import User, Clinic, Doctor
 from .utils import Util
 
@@ -115,11 +116,12 @@ class LoginAPIView(generics.GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class RequestPasswordResetAPIView(generics.GenericAPIView):
+class RequestPasswordResetAPIView(APIView):
     serializer_class = ResetPasswordEmailSerializer
 
     def post(self, request):
-        import pdb;pdb.set_trace()
+        import pdb;
+        pdb.set_trace()
         data = {'request': request, 'data': request.data}
         email = request.data.get('email', '')
 
@@ -193,7 +195,7 @@ class GetUserProfileAPIView(APIView):
 
 class UserViewSet(generics.GenericAPIView):
     serializer_class = UserUpdateUserProfileSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -225,3 +227,78 @@ class UserViewSet(generics.GenericAPIView):
         return Response({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class UpdateAdminData(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'first_name': openapi.Schema(type=openapi.TYPE_STRING),
+                'last_name': openapi.Schema(type=openapi.TYPE_STRING),
+                'phone_number': openapi.Schema(type=openapi.TYPE_STRING),
+                'contact_email': openapi.Schema(type=openapi.TYPE_STRING),
+                'phone_number_optional': openapi.Schema(type=openapi.TYPE_STRING),
+                'contact_email_optional': openapi.Schema(type=openapi.TYPE_STRING),
+                'company': openapi.Schema(type=openapi.TYPE_STRING),
+                'company_role': openapi.Schema(type=openapi.TYPE_STRING),
+                'county': openapi.Schema(type=openapi.TYPE_STRING),
+                'town': openapi.Schema(type=openapi.TYPE_STRING),
+                'street': openapi.Schema(type=openapi.TYPE_STRING),
+                'number': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+    )
+    def put(self, request):
+        user = request.user
+
+        if user.is_authenticated:
+
+            # Save user data
+            user.first_name = request.data.get('first_name', '')
+            user.last_name = request.data.get('last_name', '')
+            user.phone_number = request.data.get('phone_number', '')
+            user.contact_email = request.data.get('contact_email', '')
+            user.phone_number_optional = request.data.get('phone_number_optional', '')
+            user.contact_email_optional = request.data.get('contact_email_optional', '')
+            import pdb;pdb.set_trace()
+            # Save clinic data
+            user.clinic_profile.company = request.data.get('company', '')
+            user.clinic_profile.company_role = request.data.get('company_role', '')
+            user.clinic_profile.town = request.data.get('town', '')
+            user.clinic_profile.county = request.data.get('county', '')
+            user.clinic_profile.street = request.data.get('street', '')
+            user.clinic_profile.number = request.data.get('number', '')
+
+            # Save the data
+            user.clinic_profile.save()
+            user.save()
+
+        return Response({'success': 'Saved'}, status=200)
+
+
+class UpdateClinicTypeData(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'list_of_clinic_types': openapi.Schema(type=openapi.TYPE_ARRAY,
+                                                       description='Expected a list of ids representing the id of a '
+                                                                   'clinic type',
+                                                       items=openapi.Schema(type=openapi.TYPE_STRING)),
+            }
+        )
+    )
+    def put(self, request):
+        user = request.user
+        if user.is_authenticated:
+            try:
+                list_of_clinic_types = request.data.get('list_of_clinic_types')
+                for elem in list_of_clinic_types:
+                    clinic_type = MedicalUnityTypes.objects.get(elem)
+                    user.medical_unit_types.add(clinic_type)
+                return Response({"success": 'Success'}, status=200)
+            except Exception as s:
+                return Response({"error": s}, status=400)

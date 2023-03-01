@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import RegisterView, LoginAPIView, VerifyEmail, PasswordTokenCheckAPIView, RequestPasswordResetAPIView, \
-    SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet
+    SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet, UpdateAdminData
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -23,5 +23,12 @@ urlpatterns = [
     path('get-user-profile/', GetUserProfileAPIView.as_view(), name='get-user-profile'),
 
     # Modify the user clinic or doctor status
-    path('update-user-profile-type/', UserViewSet.as_view(), name='modify-user-profile')
+    # Adaugă pagină de profil pentru - pagina
+    path('update-user-profile-type/', UserViewSet.as_view(), name='modify-user-profile'),
+
+    # Date administrator - page - clinica
+    path('update-admin-data/', UpdateAdminData.as_view(), name='update-admin-data'),
+
+    # Date administrator - page - clinica
+    path('update-clinic-type-data/', UpdateAdminData.as_view(), name='update-admin-data')
 ]

@@ -3,6 +3,8 @@ from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, Permi
 from phonenumber_field.modelfields import PhoneNumberField
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from footerlabels.models import MedicalUnityTypes
+
 
 class UserManager(BaseUserManager):
 
@@ -67,14 +69,29 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Clinic(models.Model):
     user = models.OneToOneField(User, related_name='clinic_profile', on_delete=models.CASCADE)
+
+    # Admin Data
     role = models.CharField(max_length=255, blank=True)
     company = models.CharField(max_length=255, blank=True)
-    # TODO add the rest of the fields
+    company_role = models.CharField(max_length=255, blank=True)
+    town = models.CharField(max_length=255, blank=True)
+    county = models.CharField(max_length=255, blank=True)
+    street = models.CharField(max_length=255, blank=True)
+    number = models.CharField(max_length=255, blank=True)
+
+    # Medical Unity Types
+    medical_unit_types = models.ManyToManyField(MedicalUnityTypes)
 
 
 class Doctor(models.Model):
     user = models.OneToOneField(User, related_name='doctor_profile', on_delete=models.CASCADE)
     # TODO add the rest of the fields
+
+
+class Document(models.Model):
+    owner = models.ForeignKey('User', related_name="files",  on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    file = models.FileField()
 
 
 
