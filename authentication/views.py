@@ -261,17 +261,20 @@ class UpdateAdminData(APIView):
             user.contact_email = request.data.get('contact_email', '')
             user.phone_number_optional = request.data.get('phone_number_optional', '')
             user.contact_email_optional = request.data.get('contact_email_optional', '')
-            import pdb;pdb.set_trace()
             # Save clinic data
-            user.clinic_profile.company = request.data.get('company', '')
-            user.clinic_profile.company_role = request.data.get('company_role', '')
-            user.clinic_profile.town = request.data.get('town', '')
-            user.clinic_profile.county = request.data.get('county', '')
-            user.clinic_profile.street = request.data.get('street', '')
-            user.clinic_profile.number = request.data.get('number', '')
+            try:
+                clinic_profile = Clinic.objects.get(user=user)
+                clinic_profile.company = request.data.get('company', '')
+                clinic_profile.company_role = request.data.get('company_role', '')
+                clinic_profile.town = request.data.get('town', '')
+                clinic_profile.county = request.data.get('county', '')
+                clinic_profile.street = request.data.get('street', '')
+                clinic_profile.number = request.data.get('number', '')
+                clinic_profile.save()
+            except Clinic.DoesNotExist as e:
+                return Response({'error': 'Clinic profile does\'t exist'})
 
             # Save the data
-            user.clinic_profile.save()
             user.save()
 
         return Response({'success': 'Saved'}, status=200)
