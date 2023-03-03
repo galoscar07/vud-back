@@ -1,11 +1,17 @@
 from rest_framework import serializers
-from footerlabels.models import Footerlabels
+from footerlabels.models import Footerlabels, MedicalUnityTypes
 
 
 class FooterlabelsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Footerlabels
         fields = ['id', 'label', 'link']
+
+
+class MedicalUnityTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MedicalUnityTypes
+        fields = ['id', 'label']
 
 
 

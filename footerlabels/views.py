@@ -1,17 +1,29 @@
 from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from footerlabels.models import Footerlabels
-from footerlabels.serializers import FooterlabelsSerializer
-
-
-class FooterLabelList(generics.ListCreateAPIView):
-    queryset = Footerlabels.objects.all()
-    serializer_class = FooterlabelsSerializer
+from footerlabels.models import Footerlabels, MedicalUnityTypes
+from footerlabels.serializers import FooterlabelsSerializer, MedicalUnityTypesSerializer
 
 
-class FooterLabelDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Footerlabels.objects.all()
-    serializer_class = FooterlabelsSerializer
+class FooterLabelList(APIView):
+    """
+    List all footer labels, or create a new footer label.
+    """
+    def get(self, request):
+        snippets = Footerlabels.objects.all()
+        serializer = FooterlabelsSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+
+class MedicalUnityTypesList(APIView):
+    """
+    List all Medical Unity Types labels, or create a new footer label.
+    """
+    def get(self, request):
+        medical_unity_types = MedicalUnityTypes.objects.all()
+        serializer = MedicalUnityTypesSerializer(medical_unity_types, many=True)
+        return Response(serializer.data, status=200)
 
 
 

@@ -300,8 +300,9 @@ class UpdateClinicTypeData(APIView):
             try:
                 list_of_clinic_types = request.data.get('list_of_clinic_types')
                 for elem in list_of_clinic_types:
-                    clinic_type = MedicalUnityTypes.objects.get(elem)
-                    user.medical_unit_types.add(clinic_type)
+                    clinic_type = MedicalUnityTypes.objects.get(id=elem)
+                    clinic_profile = user.clinic_profile
+                    clinic_profile.medical_unit_types.add(clinic_type)
                 return Response({"success": 'Success'}, status=200)
             except Exception as s:
                 return Response({"error": s}, status=400)

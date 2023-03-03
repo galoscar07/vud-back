@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import RegisterView, LoginAPIView, VerifyEmail, PasswordTokenCheckAPIView, RequestPasswordResetAPIView, \
-    SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet, UpdateAdminData
+    SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet, UpdateAdminData, UpdateClinicTypeData
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -30,5 +30,5 @@ urlpatterns = [
     path('update-admin-data/', UpdateAdminData.as_view(), name='update-admin-data'),
 
     # Date administrator - page - clinica
-    path('update-clinic-type-data/', UpdateAdminData.as_view(), name='update-admin-data')
+    path('update-clinic-type-data/', UpdateClinicTypeData.as_view(), name='update-admin-data')
 ]
