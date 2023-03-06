@@ -81,16 +81,24 @@ class MedicalFacilities(models.Model):
         return self.label
 
 
+def upload_path_clinic_office(instance, filename):
+    return '/'.join(['images/clinic_offices', str(instance.id), str(instance.name), filename])
+
+
+def upload_path_collaborator_doctor(instance, filename):
+    return '/'.join(['images/collaborator_doctor', str(instance.id), str(instance.doctor_name), filename])
+
+
 class ClinicOffice(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     address = models.CharField(max_length=500, blank=True, null=True)
     link = models.CharField(max_length=255, blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='images/clinic_offices/')
+    profile_picture = models.ImageField(upload_to=upload_path_clinic_office, blank=True, null=True)
     medical_unit_types = models.ManyToManyField(MedicalUnityTypes)
 
 
 class CollaboratorDoctor(models.Model):
-    profile_picture = models.ImageField(upload_to='images/collaborator_doctor/')
+    profile_picture = models.ImageField(upload_to=upload_path_collaborator_doctor, blank=True, null=True)
     doctor_name = models.CharField(max_length=255, blank=True, null=True)
     academic_degree = models.ManyToManyField(AcademicDegree)
     speciality = models.ManyToManyField(Speciality)

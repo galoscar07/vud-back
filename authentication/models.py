@@ -57,6 +57,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone_number_optional = PhoneNumberField(blank=True)
     contact_email_optional = models.EmailField(blank=True)
 
+    # Profile Picture
+    profile_picture = models.ImageField(upload_to='images/users/', blank=True, null=True)
+
     USERNAME_FIELD = 'email'
     # REQUIRED_FIELDS = ['email']
 
@@ -83,6 +86,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         }
 
 
+def upload_path_clinic(instance, filename):
+    return '/'.join(['images/clinic', str(instance.id), filename])
+
+
 class Clinic(models.Model):
     user = models.OneToOneField(User, related_name='clinic_profile', on_delete=models.CASCADE, blank=True, null=True)
 
@@ -96,7 +103,7 @@ class Clinic(models.Model):
     number = models.CharField(max_length=255, blank=True)
 
     # Clinics Data
-    profile_picture = models.ImageField(upload_to='images/clinic/')
+    profile_picture = models.ImageField(upload_to=upload_path_clinic, blank=True, null=True)
     clinic_name = models.CharField(max_length=255, blank=True, null=True)
     clinic_street = models.CharField(max_length=255, blank=True, null=True)
     clinic_number = models.CharField(max_length=255, blank=True, null=True)
@@ -112,7 +119,7 @@ class Clinic(models.Model):
     website_google = models.CharField(max_length=255, blank=True, null=True)
     website_linkedin = models.CharField(max_length=255, blank=True, null=True)
     website_youtube = models.CharField(max_length=255, blank=True, null=True)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
 
     # Doctor Collaborator
     collaborator_doctor = models.ManyToManyField(CollaboratorDoctor)
@@ -130,7 +137,7 @@ class Clinic(models.Model):
     medical_unit_types = models.ManyToManyField(MedicalUnityTypes)
 
     # Schedule
-    clinic_schedule = models.TextField()
+    clinic_schedule = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Clinica'

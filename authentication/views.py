@@ -1,9 +1,9 @@
 import django.db
 import jwt
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
+import json
 
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
-from django.urls import reverse
 from django.conf import settings
 from django.utils.encoding import smart_bytes, smart_str, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -20,7 +20,7 @@ from authentication.serializers import RegisterSerializer, EmailVerificationSeri
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from footerlabels.models import MedicalUnityTypes
+from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities
 from .models import User, Clinic, Doctor
 from .utils import Util
 
@@ -120,7 +120,6 @@ class RequestPasswordResetAPIView(APIView):
     serializer_class = ResetPasswordEmailSerializer
 
     def post(self, request):
-        import pdb;
         pdb.set_trace()
         data = {'request': request, 'data': request.data}
         email = request.data.get('email', '')
@@ -306,3 +305,85 @@ class UpdateClinicTypeData(APIView):
                 return Response({"success": 'Success'}, status=200)
             except Exception as s:
                 return Response({"error": s}, status=400)
+
+
+class UpdateClinicProfileView(APIView):
+    def put(self, request):
+        user = request.user
+        # check user is authenticated + user have clinic progfile
+        if not user.is_authenticated:
+            return Response({"error": 'Not logged'}, status=401)
+        if not user.is_clinic or not user.clinic_profile:
+            return Response({"error": 'No clinic profile'}, status=400)
+        # after you checked get the data from request
+        clinic_name = request.data.get('clinic_name', None)
+        clinic_street = request.data.get('clinic_street', None)
+        clinic_number = request.data.get('clinic_number', None)
+        clinic_town = request.data.get('clinic_town', None)
+        clinic_county = request.data.get('clinic_county', None)
+        clinic_other_details = request.data.get('clinic_other_details', None)
+        primary_phone = request.data.get('primary_phone', None)
+        secondary_phone = request.data.get('secondary_phone', None)
+        primary_email = request.data.get('primary_email', None)
+        secondary_email = request.data.get('secondary_email', None)
+        website = request.data.get('website', None)
+        website_facebook = request.data.get('website_facebook', None)
+        website_google = request.data.get('website_google', None)
+        website_linkedin = request.data.get('website_linkedin', None)
+        website_youtube = request.data.get('website_youtube', None)
+        description = request.data.get('description', None)
+        clinic_specialities = request.data.get('clinic_specialities', None)
+        clinic_schedule = request.data.get('clinic_schedule', None)
+
+        if clinic_specialities:
+            clinic_specialities = json.loads(clinic_specialities)
+        clinic_facilities = request.data.get('clinic_facilities', None)
+        if clinic_facilities:
+            clinic_facilities = json.loads(clinic_facilities)
+        hq = request.data.get('hq', None)
+        if hq:
+            hq = json.loads(hq)
+        doctors = request.data.get('doctor', None)
+        if doctors:
+            doctors = json.loads(doctors)
+
+        clinic_profile = user.clinic_profile
+        clinic_profile.clinic_name = clinic_name
+        clinic_profile.clinic_street = clinic_street
+        clinic_profile.clinic_number = clinic_number
+        clinic_profile.clinic_town = clinic_town
+        clinic_profile.clinic_county = clinic_county
+        clinic_profile.clinic_other_details = clinic_other_details
+        clinic_profile.primary_phone = primary_phone
+        clinic_profile.secondary_phone = secondary_phone
+        clinic_profile.primary_email = primary_email
+        clinic_profile.secondary_email = secondary_email
+        clinic_profile.website = website
+        clinic_profile.website_facebook = website_facebook
+        clinic_profile.website_google = website_google
+        clinic_profile.website_linkedin = website_linkedin
+        clinic_profile.website_youtube = website_youtube
+        clinic_profile.description = description
+        clinic_profile.clinic_schedule = clinic_schedule
+
+        for cs in clinic_specialities:
+            try:
+                clinic_spec = ClinicSpecialities.objects.get(id=cs)
+                clinic_profile.clinic_specialities.add(clinic_spec)
+            except ClinicSpecialities.DoesNotExist:
+                pass
+
+        for cf in clinic_facilities:
+            try:
+                clinic_fac = MedicalFacilities.objects.get(id=cf)
+                clinic_profile.unity_facilities.add(clinic_fac)
+            except MedicalFacilities.DoesNotExist:
+                pass
+
+        # TODO implement this
+        # photoKeys = request.data.get('photoKeys', None)
+        # if photoKeys:
+        #     import pdb;pdb.set_trace()
+
+        clinic_profile.save()
+        return Response({"success": "Success"}, status=200)

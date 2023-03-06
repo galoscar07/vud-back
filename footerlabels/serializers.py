@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from footerlabels.models import Footerlabels, MedicalUnityTypes
+from footerlabels.models import Footerlabels, MedicalUnityTypes, AcademicDegree, Speciality, MedicalSkills, \
+    ClinicSpecialities, MedicalFacilities
 
 
 class FooterlabelsSerializer(serializers.ModelSerializer):
@@ -14,30 +15,31 @@ class MedicalUnityTypesSerializer(serializers.ModelSerializer):
         fields = ['id', 'label']
 
 
+class AcademicDegreeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicDegree
+        fields = ['id', 'label']
 
 
+class SpecialitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Speciality
+        fields = ['id', 'label']
 
 
+class MedicalSkillsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MedicalSkills
+        fields = ['id', 'label']
 
 
-
-# Older way to do it
-# class FooterlabelsSerializer(serializers.Serializer):
-    # id = serializers.IntegerField(read_only=True)
-    # label = serializers.CharField(required=True, allow_blank=False, max_length=100)
-    # link = serializers.CharField(required=True, allow_blank=False, max_length=100)
-    #
-    # def create(self, validated_data):
-    #     """
-    #     Create and return a new `Footerlabels` instance, given the validated data.
-    #     """
-    #     return Footerlabels.objects.create(**validated_data)
-    #
-    # def update(self, instance, validated_data):
-    #     """
-    #     Update and return an existing `Footerlabels` instance, given the validated data.
-    #     """
-    #     instance.label = validated_data.get('label', instance.label)
-    #     instance.link = validated_data.get('label', instance.label)
+class ClinicSpecialitiesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClinicSpecialities
+        fields = ['id', 'label']
 
 
+class MedicalFacilitiesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MedicalFacilities
+        fields = ['id', 'label']

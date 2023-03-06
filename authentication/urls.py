@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import RegisterView, LoginAPIView, VerifyEmail, PasswordTokenCheckAPIView, RequestPasswordResetAPIView, \
-    SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet, UpdateAdminData, UpdateClinicTypeData
+    SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet, UpdateAdminData, UpdateClinicTypeData, \
+    UpdateClinicProfileView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -16,7 +17,7 @@ urlpatterns = [
 
     # Password Reset
     path('password-reset-request/', RequestPasswordResetAPIView.as_view(), name='request-password-reset'),
-    path('password-reset/<uidb>/<token>', PasswordTokenCheckAPIView.as_view(), name='password-reset-confirm'),
+    path('password-reset/<uidb>/<token>/', PasswordTokenCheckAPIView.as_view(), name='password-reset-confirm'),
     path('password-reset-complete/', SetNewPasswordAPIView.as_view(), name='password-reset-complete'),
 
     # Get user profile
@@ -30,5 +31,6 @@ urlpatterns = [
     path('update-admin-data/', UpdateAdminData.as_view(), name='update-admin-data'),
 
     # Date administrator - page - clinica
-    path('update-clinic-type-data/', UpdateClinicTypeData.as_view(), name='update-admin-data')
+    path('update-clinic-type-data/', UpdateClinicTypeData.as_view(), name='update-admin-data'),
+    path('update-clinic-profile/', UpdateClinicProfileView.as_view(), name='update-clinic-profile')
 ]
