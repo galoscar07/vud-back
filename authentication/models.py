@@ -102,6 +102,9 @@ class Clinic(models.Model):
     street = models.CharField(max_length=255, blank=True)
     number = models.CharField(max_length=255, blank=True)
 
+    # Step will be the step in the auth in which the user is
+    step = models.CharField(max_length=2, default=0, blank=False)
+
     # Clinics Data
     profile_picture = models.ImageField(upload_to=upload_path_clinic, blank=True, null=True)
     clinic_name = models.CharField(max_length=255, blank=True, null=True)

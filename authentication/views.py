@@ -120,7 +120,6 @@ class RequestPasswordResetAPIView(APIView):
     serializer_class = ResetPasswordEmailSerializer
 
     def post(self, request):
-        pdb.set_trace()
         data = {'request': request, 'data': request.data}
         email = request.data.get('email', '')
 
@@ -182,6 +181,11 @@ class GetUserProfileAPIView(APIView):
         if user.is_authenticated:
             # if the user is a student
             if user.is_clinic:
+                clinic_profile = user.clinic_profile
+                if clinic_profile.step != '5':
+                    return Response({"step": clinic_profile.step}, status=200)
+                if not user.is_visible:
+                    return Response({"step": 5}, status=200)
                 serializer = ClinicProfileSerializer(user.clinic_profile)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             elif user.is_doctor:
@@ -205,6 +209,7 @@ class UserViewSet(generics.GenericAPIView):
             user.is_clinic = is_clinic
             try:
                 clinic = Clinic.objects.create(user=user)
+                clinic.step = 2
                 clinic.save()
             except django.db.utils.IntegrityError:
                 pass
@@ -269,6 +274,7 @@ class UpdateAdminData(APIView):
                 clinic_profile.county = request.data.get('county', '')
                 clinic_profile.street = request.data.get('street', '')
                 clinic_profile.number = request.data.get('number', '')
+                clinic_profile.step = 3
                 clinic_profile.save()
             except Clinic.DoesNotExist as e:
                 return Response({'error': 'Clinic profile does\'t exist'})
@@ -298,10 +304,12 @@ class UpdateClinicTypeData(APIView):
         if user.is_authenticated:
             try:
                 list_of_clinic_types = request.data.get('list_of_clinic_types')
+                clinic_profile = user.clinic_profile
                 for elem in list_of_clinic_types:
                     clinic_type = MedicalUnityTypes.objects.get(id=elem)
-                    clinic_profile = user.clinic_profile
                     clinic_profile.medical_unit_types.add(clinic_type)
+                clinic_profile.step = 4
+                clinic_profile.save()
                 return Response({"success": 'Success'}, status=200)
             except Exception as s:
                 return Response({"error": s}, status=400)
@@ -365,6 +373,7 @@ class UpdateClinicProfileView(APIView):
         clinic_profile.website_youtube = website_youtube
         clinic_profile.description = description
         clinic_profile.clinic_schedule = clinic_schedule
+        clinic_profile.step = 5
 
         for cs in clinic_specialities:
             try:
