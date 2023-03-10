@@ -147,7 +147,7 @@ class Clinic(models.Model):
         verbose_name_plural = 'Clinici'
 
     def __str__(self):
-        return f'Id utilizator: {self.user.id}, companie: {self.company}'
+        return f'Id utilizator: {self.user.id}, companie: {self.company}, clinic_id: {self.id}'
 
 
 class ClinicReview(models.Model):
