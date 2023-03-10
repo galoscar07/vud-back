@@ -150,6 +150,19 @@ class Clinic(models.Model):
         return f'Id utilizator: {self.user.id}, companie: {self.company}'
 
 
+class ClinicReview(models.Model):
+    clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.PositiveIntegerField()
+    comment = models.TextField(blank=True)
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_visible = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+
 class Doctor(models.Model):
     user = models.OneToOneField(User, related_name='doctor_profile', on_delete=models.CASCADE)
     # TODO add the rest of the fields

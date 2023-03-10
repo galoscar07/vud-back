@@ -104,3 +104,8 @@ class CollaboratorDoctor(models.Model):
     speciality = models.ManyToManyField(Speciality)
     medical_skill = models.ManyToManyField(MedicalSkills)
     link = models.CharField(max_length=255, blank=True, null=True)
+
+
+class Newsletter(models.Model):
+    name = models.CharField(max_length=255, blank=False)
+    email = models.EmailField(blank=False)

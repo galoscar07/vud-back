@@ -1,4 +1,6 @@
 from django.urls import path
+
+from footerlabels.views import ClinicList, TopClinicsAPIView, ClinicDetailAPIView, ReviewCreate
 from .views import RegisterView, LoginAPIView, VerifyEmail, PasswordTokenCheckAPIView, RequestPasswordResetAPIView, \
     SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet, UpdateAdminData, UpdateClinicTypeData, \
     UpdateClinicProfileView
@@ -32,5 +34,10 @@ urlpatterns = [
 
     # Date administrator - page - clinica
     path('update-clinic-type-data/', UpdateClinicTypeData.as_view(), name='update-admin-data'),
-    path('update-clinic-profile/', UpdateClinicProfileView.as_view(), name='update-clinic-profile')
+    path('update-clinic-profile/', UpdateClinicProfileView.as_view(), name='update-clinic-profile'),
+
+    path('get-clinics/', ClinicList.as_view(), name='get-clinics-filters'),
+    path('get-top-clinics/', TopClinicsAPIView.as_view(), name='get-top-clinics'),
+    path('clinics/<int:id>/', ClinicDetailAPIView.as_view(), name='get-clinic-by-id'),
+    path('clinic-review/', ReviewCreate.as_view(), name='create-clinic-review')
 ]

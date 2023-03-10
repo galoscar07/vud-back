@@ -6,7 +6,9 @@ from django.utils.http import urlsafe_base64_decode
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 
-from authentication.models import User, Doctor, Clinic
+from authentication.models import User, Doctor, Clinic, ClinicReview
+from footerlabels.serializers import ClinicSpecialitiesSerializer, MedicalFacilitiesSerializer, \
+    MedicalUnityTypesSerializer, ClinicOfficeSerializer, CollaboratorDoctorSerializer
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -124,7 +126,32 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClinicReview
+        fields = '__all__'
+
+
 class ClinicProfileSerializer(serializers.ModelSerializer):
+    reviews = ReviewSerializer(many=True, read_only=True)
+    clinic_specialities = ClinicSpecialitiesSerializer(many=True, read_only=True)
+    unity_facilities = MedicalFacilitiesSerializer(many=True, read_only=True)
+    medical_unit_types = MedicalUnityTypesSerializer(many=True, read_only=True)
+    clinic_offices = ClinicOfficeSerializer(many=True, read_only=True)
+    collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Clinic
+        fields = '__all__'
+
+
+class ClinicProfileSimpleSerializer(serializers.ModelSerializer):
+    clinic_specialities = ClinicSpecialitiesSerializer(many=True, read_only=True)
+    unity_facilities = MedicalFacilitiesSerializer(many=True, read_only=True)
+    medical_unit_types = MedicalUnityTypesSerializer(many=True, read_only=True)
+    clinic_offices = ClinicOfficeSerializer(many=True, read_only=True)
+    collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
+
     class Meta:
         model = Clinic
         fields = '__all__'
