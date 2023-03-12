@@ -20,7 +20,8 @@ from authentication.serializers import RegisterSerializer, EmailVerificationSeri
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities
+from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, ClinicOffice, \
+    CollaboratorDoctor, AcademicDegree, Speciality, MedicalSkills
 from .models import User, Clinic, Doctor
 from .utils import Util
 
@@ -340,22 +341,27 @@ class UpdateClinicProfileView(APIView):
         website_linkedin = request.data.get('website_linkedin', None)
         website_youtube = request.data.get('website_youtube', None)
         description = request.data.get('description', None)
-        clinic_specialities = request.data.get('clinic_specialities', None)
         clinic_schedule = request.data.get('clinic_schedule', None)
+        profile_picture = request.data.get('profile_picture', None)
 
+        clinic_specialities = request.data.get('clinic_specialities', None)
         if clinic_specialities:
             clinic_specialities = json.loads(clinic_specialities)
+
         clinic_facilities = request.data.get('clinic_facilities', None)
         if clinic_facilities:
             clinic_facilities = json.loads(clinic_facilities)
-        hq = request.data.get('hq', None)
-        if hq:
-            hq = json.loads(hq)
+
+        hqs = request.data.get('hq', None)
+        if hqs:
+            hqs = json.loads(hqs)
+
         doctors = request.data.get('doctor', None)
         if doctors:
             doctors = json.loads(doctors)
 
         clinic_profile = user.clinic_profile
+
         clinic_profile.clinic_name = clinic_name
         clinic_profile.clinic_street = clinic_street
         clinic_profile.clinic_number = clinic_number
@@ -373,6 +379,7 @@ class UpdateClinicProfileView(APIView):
         clinic_profile.website_youtube = website_youtube
         clinic_profile.description = description
         clinic_profile.clinic_schedule = clinic_schedule
+        clinic_profile.profile_picture = profile_picture
         clinic_profile.step = 5
 
         for cs in clinic_specialities:
@@ -388,11 +395,41 @@ class UpdateClinicProfileView(APIView):
                 clinic_profile.unity_facilities.add(clinic_fac)
             except MedicalFacilities.DoesNotExist:
                 pass
+        index = 0
+        for hq in hqs:
+            photo_key = "|".join(hq['name'].split()) + "_hq_" + str(index)
+            photo = request.data.get(photo_key, None)
+            elem = ClinicOffice.objects.create(
+                name=hq['name'],
+                address=hq['address'],
+                link=hq['link'],
+                profile_picture=photo
+            )
+            for mut in hq['medical_unit_types']:
+                mm = MedicalUnityTypes.objects.get(id=mut)
+                elem.medical_unit_types.add(mm)
+            elem.save()
+            clinic_profile.clinic_offices.add(elem)
 
-        # TODO implement this
-        # photoKeys = request.data.get('photoKeys', None)
-        # if photoKeys:
-        #     import pdb;pdb.set_trace()
+        for doc in doctors:
+            photo_key = "|".join(doc['name'].split()) + "_doc_" + str(index)
+            photo = request.data.get(photo_key, None)
+            elem = CollaboratorDoctor.objects.create(
+                doctor_name=doc['name'],
+                link=doc['link'],
+                profile_picture=photo
+            )
+            for mut in doc['academic_degree']:
+                mm = AcademicDegree.objects.get(id=mut)
+                elem.academic_degree.add(mm)
+            for mut in doc['speciality']:
+                mm = Speciality.objects.get(id=mut)
+                elem.speciality.add(mm)
+            for mut in doc['competences']:
+                mm = MedicalSkills.objects.get(id=mut)
+                elem.medical_skill.add(mm)
+            elem.save()
+            clinic_profile.collaborator_doctor.add(elem)
 
         clinic_profile.save()
         return Response({"success": "Success"}, status=200)

@@ -46,12 +46,18 @@ class MedicalFacilitiesSerializer(serializers.ModelSerializer):
 
 
 class CollaboratorDoctorSerializer(serializers.ModelSerializer):
+    academic_degree = AcademicDegreeSerializer(many=True, read_only=True)
+    medical_skill = MedicalSkillsSerializer(many=True, read_only=True)
+    speciality = SpecialitySerializer(many=True, read_only=True)
+
     class Meta:
         model = CollaboratorDoctor
         fields = '__all__'
 
 
 class ClinicOfficeSerializer(serializers.ModelSerializer):
+    medical_unit_types = MedicalUnityTypesSerializer(many=True, read_only=True)
+
     class Meta:
         model = ClinicOffice
         fields = '__all__'
