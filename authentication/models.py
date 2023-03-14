@@ -71,12 +71,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         if self.is_doctor:
-            return f'email: {self.email}, rol: doctor'
+            return f'email: {self.email}, rol: doctor, id: {self.id}'
         if self.is_clinic:
-            return f'email: {self.email}, rol: clinica'
+            return f'email: {self.email}, rol: clinica, id: {self.id}'
         if self.is_staff:
-            return f'email: {self.email}, rol: staff'
-        return f'Role: {"doctor" if self.is_doctor else "clinic" if self.is_clinic else "none"}, Email: {self.email}'
+            return f'email: {self.email}, rol: staff, id: {self.id}'
+        return f'Role: {"doctor" if self.is_doctor else "clinic" if self.is_clinic else "none"}, Email: {self.email}, id: {self.id}'
 
     def tokens(self):
         refresh = RefreshToken.for_user(self)

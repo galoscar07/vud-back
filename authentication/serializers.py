@@ -139,6 +139,8 @@ class ClinicProfileSerializer(serializers.ModelSerializer):
     medical_unit_types = MedicalUnityTypesSerializer(many=True, read_only=True)
     clinic_offices = ClinicOfficeSerializer(many=True, read_only=True)
     collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
+    review_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Clinic
@@ -151,6 +153,8 @@ class ClinicProfileSimpleSerializer(serializers.ModelSerializer):
     medical_unit_types = MedicalUnityTypesSerializer(many=True, read_only=True)
     clinic_offices = ClinicOfficeSerializer(many=True, read_only=True)
     collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
+    review_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Clinic

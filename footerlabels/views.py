@@ -1,5 +1,6 @@
 from django.core.exceptions import FieldError
-from django.db.models import Avg
+from django.db.models import Avg, Q, Count
+from django_crontab import models
 from rest_framework import generics,pagination
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
@@ -105,7 +106,10 @@ class ClinicPagination(pagination.PageNumberPagination):
 
 class ClinicList(generics.ListAPIView):
     serializer_class = ClinicProfileSerializer
-    queryset = Clinic.objects.filter(user__is_visible=True)
+    queryset = Clinic.objects.annotate(
+            average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
+            review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
+        ).all()
     pagination_class = ClinicPagination
 
     def get_queryset(self):
@@ -138,18 +142,21 @@ class ClinicList(generics.ListAPIView):
 
 
 class TopClinicsAPIView(APIView):
+    queryset = Clinic.objects.filter(user__is_visible=True)
+
     def get(self, request, format=None):
-        # TODO: Get only the visible ones - clinics
         # Get the first 4 clinics ordered by their rating
-        clinics = Clinic.objects.annotate(avg_rating=Avg('reviews__rating')).order_by('-avg_rating')[:4]
+        clinics = Clinic.objects.annotate(
+            average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
+            review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
+        ).order_by('-average_rating')[:4]
 
         # Serialize the clinics data
         serializer = ClinicProfileSimpleSerializer(clinics, many=True)
 
         # Get the first 4 reviews for each clinic and add them to the serialized clinic data
         for i, clinic in enumerate(clinics):
-            # TODO: Get only the visible ones - reviews
-            reviews = ClinicReview.objects.filter(clinic=clinic)[:4]
+            reviews = ClinicReview.objects.filter(is_visible=True, clinic=clinic)[:4]
             reviews_serializer = ReviewSerializer(reviews, many=True)
             serializer.data[i]['recent_reviews'] = reviews_serializer.data
 
@@ -157,7 +164,10 @@ class TopClinicsAPIView(APIView):
 
 
 class ClinicDetailAPIView(RetrieveAPIView):
-    queryset = Clinic.objects.all()
+    queryset = Clinic.objects.annotate(
+            average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
+            review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
+        ).filter(user__is_visible=True)
     serializer_class = ClinicProfileSerializer
     lookup_field = 'id'
 
@@ -165,6 +175,7 @@ class ClinicDetailAPIView(RetrieveAPIView):
         context = super().get_serializer_context()
         # TODO: Get only the visible ones - reviews
         context['reviews'] = ClinicReview.objects.filter(clinic=self.kwargs['id'])
+
         return context
 
 
