@@ -1,6 +1,22 @@
 from django.db import models
 
 
+def upload_path_clinic_office(instance, filename):
+    return '/'.join(['images/clinic_offices', str(instance.id), str(instance.name), filename])
+
+
+def upload_path_collaborator_doctor(instance, filename):
+    return '/'.join(['images/collaborator_doctor', str(instance.id), str(instance.doctor_name), filename])
+
+
+def upload_path_banner_image(instance, filename):
+    return '/'.join(['images/banner', str(instance.id), str(instance.title), filename])
+
+
+def upload_path_facilities(instance, filename):
+    return '/'.join(['images/facilities', str(instance.id), str(instance.label), filename])
+
+
 class Footerlabels(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     label = models.CharField(max_length=100, blank=False)
@@ -72,6 +88,7 @@ class ClinicSpecialities(models.Model):
 
 class MedicalFacilities(models.Model):
     label = models.CharField(max_length=60)
+    icon = models.ImageField(upload_to=upload_path_facilities, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Facilitate Unitate'
@@ -79,17 +96,6 @@ class MedicalFacilities(models.Model):
 
     def __str__(self):
         return self.label
-
-
-def upload_path_clinic_office(instance, filename):
-    return '/'.join(['images/clinic_offices', str(instance.id), str(instance.name), filename])
-
-
-def upload_path_collaborator_doctor(instance, filename):
-    return '/'.join(['images/collaborator_doctor', str(instance.id), str(instance.doctor_name), filename])
-
-def upload_path_banner_image(instance, filename):
-    return '/'.join(['images/banner', str(instance.id), str(instance.title), filename])
 
 
 class ClinicOffice(models.Model):
