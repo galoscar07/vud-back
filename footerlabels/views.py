@@ -153,7 +153,7 @@ class ClinicList(generics.ListAPIView):
 
 
 class TopClinicsAPIView(APIView):
-    queryset = Clinic.objects.filter(user__is_visible=True)
+    queryset = Clinic.objects.all()
 
     def get(self, request, format=None):
         # Get the first 4 clinics ordered by their rating
