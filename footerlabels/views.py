@@ -178,7 +178,7 @@ class ClinicDetailAPIView(RetrieveAPIView):
     queryset = Clinic.objects.annotate(
             average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
             review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
-        ).filter(user__is_visible=True)
+        )
     serializer_class = ClinicProfileSerializer
     lookup_field = 'id'
 
