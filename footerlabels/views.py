@@ -153,8 +153,6 @@ class ClinicList(generics.ListAPIView):
 
 
 class TopClinicsAPIView(APIView):
-    queryset = Clinic.objects.all()
-
     def get(self, request, format=None):
         # Get the first 4 clinics ordered by their rating
         clinics = Clinic.objects.annotate(
