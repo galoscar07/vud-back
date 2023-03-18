@@ -42,7 +42,7 @@ class ClinicSpecialitiesSerializer(serializers.ModelSerializer):
 class MedicalFacilitiesSerializer(serializers.ModelSerializer):
     class Meta:
         model = MedicalFacilities
-        fields = ['id', 'label']
+        fields = '__all__'
 
 
 class BannerCardsSerializer(serializers.ModelSerializer):
