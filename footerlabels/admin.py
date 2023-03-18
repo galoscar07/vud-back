@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from footerlabels.models import Footerlabels, MedicalUnityTypes, AcademicDegree, Speciality, MedicalSkills, \
-    ClinicSpecialities, MedicalFacilities, ClinicOffice, CollaboratorDoctor
+    ClinicSpecialities, MedicalFacilities, ClinicOffice, CollaboratorDoctor, BannerCards
 
 admin.site.register(Footerlabels)
 admin.site.register(MedicalUnityTypes)
@@ -12,3 +12,4 @@ admin.site.register(ClinicSpecialities)
 admin.site.register(MedicalFacilities)
 admin.site.register(ClinicOffice)
 admin.site.register(CollaboratorDoctor)
+admin.site.register(BannerCards)

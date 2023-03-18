@@ -10,7 +10,8 @@ urlpatterns = [
     path('competences/', views.MedicalSkillsList.as_view(), name='competences'),
     path('clinic-specialities/', views.ClinicSpecialitiesList.as_view(), name='clinic-specialities'),
     path('medical-facilities/', views.MedicalFacilitiesList.as_view(), name='medical-facilities'),
-    path('newsletter/', views.NewsletterView.as_view(), name='medical-facilities'),
+    path('banners/', views.BannerCardList.as_view(), name='banners'),
+    path('newsletter/', views.NewsletterView.as_view(), name='newsletter'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

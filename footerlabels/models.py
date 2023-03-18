@@ -88,6 +88,9 @@ def upload_path_clinic_office(instance, filename):
 def upload_path_collaborator_doctor(instance, filename):
     return '/'.join(['images/collaborator_doctor', str(instance.id), str(instance.doctor_name), filename])
 
+def upload_path_banner_image(instance, filename):
+    return '/'.join(['images/banner', str(instance.id), str(instance.title), filename])
+
 
 class ClinicOffice(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
@@ -95,6 +98,13 @@ class ClinicOffice(models.Model):
     link = models.CharField(max_length=255, blank=True, null=True)
     profile_picture = models.ImageField(upload_to=upload_path_clinic_office, blank=True, null=True)
     medical_unit_types = models.ManyToManyField(MedicalUnityTypes)
+
+    class Meta:
+        verbose_name = 'Sediu Clinica'
+        verbose_name_plural = 'Sedii Clinici'
+
+    def __str__(self):
+        return f'Nume Sediu: {self.name}, Id: {self.id}'
 
 
 class CollaboratorDoctor(models.Model):
@@ -105,7 +115,35 @@ class CollaboratorDoctor(models.Model):
     medical_skill = models.ManyToManyField(MedicalSkills)
     link = models.CharField(max_length=255, blank=True, null=True)
 
+    class Meta:
+        verbose_name = 'Doctor Colaborator Clinica'
+        verbose_name_plural = 'Doctori Colaboratori Clinici'
+
+    def __str__(self):
+        return f'Nume doctor: {self.doctor_name}, Id: {self.id}'
+
 
 class Newsletter(models.Model):
     name = models.CharField(max_length=255, blank=False)
     email = models.EmailField(blank=False)
+
+    class Meta:
+        verbose_name = 'Newsletter Email'
+        verbose_name_plural = 'Newsletter Emails'
+
+    def __str__(self):
+        return f'Nume: {self.name}, Email: {self.email}'
+
+
+class BannerCards(models.Model):
+    title = models.CharField(max_length=255, blank=False)
+    subtitle = models.CharField(max_length=255, blank=False)
+    link = models.CharField(max_length=255, blank=False)
+    profile_picture = models.ImageField(upload_to=upload_path_collaborator_doctor, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Banner Card'
+        verbose_name_plural = 'Banners Cards'
+
+    def __str__(self):
+        return f'Titlu: {self.title}, id: {self.id}'
