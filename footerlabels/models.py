@@ -145,7 +145,7 @@ class BannerCards(models.Model):
     title = models.CharField(max_length=255, blank=False)
     subtitle = models.CharField(max_length=255, blank=False)
     link = models.CharField(max_length=255, blank=False)
-    profile_picture = models.ImageField(upload_to=upload_path_collaborator_doctor, blank=True, null=True)
+    profile_picture = models.ImageField(upload_to=upload_path_banner_image, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Banner Card'
