@@ -340,6 +340,7 @@ class UpdateClinicProfileView(APIView):
         website_google = request.data.get('website_google', None)
         website_linkedin = request.data.get('website_linkedin', None)
         website_youtube = request.data.get('website_youtube', None)
+        whatsapp = request.data.get('whatsapp', None)
         description = request.data.get('description', None)
         clinic_schedule = request.data.get('clinic_schedule', None)
         profile_picture = request.data.get('profile_picture', None)
@@ -373,6 +374,7 @@ class UpdateClinicProfileView(APIView):
         clinic_profile.website_google = website_google
         clinic_profile.website_linkedin = website_linkedin
         clinic_profile.website_youtube = website_youtube
+        clinic_profile.whatsapp = whatsapp
         clinic_profile.description = description
         clinic_profile.clinic_schedule = clinic_schedule
         clinic_profile.profile_picture = profile_picture

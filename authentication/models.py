@@ -122,6 +122,7 @@ class Clinic(models.Model):
     website_google = models.CharField(max_length=255, blank=True, null=True)
     website_linkedin = models.CharField(max_length=255, blank=True, null=True)
     website_youtube = models.CharField(max_length=255, blank=True, null=True)
+    whatsapp = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(null=True, blank=True)
 
     # Doctor Collaborator
