@@ -8,7 +8,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from authentication.models import User, Doctor, Clinic, ClinicReview
 from footerlabels.serializers import ClinicSpecialitiesSerializer, MedicalFacilitiesSerializer, \
-    MedicalUnityTypesSerializer, ClinicOfficeSerializer, CollaboratorDoctorSerializer
+    MedicalUnityTypesSerializer, CollaboratorDoctorSerializer
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -137,7 +137,6 @@ class ClinicProfileSerializer(serializers.ModelSerializer):
     clinic_specialities = ClinicSpecialitiesSerializer(many=True, read_only=True)
     unity_facilities = MedicalFacilitiesSerializer(many=True, read_only=True)
     medical_unit_types = MedicalUnityTypesSerializer(many=True, read_only=True)
-    clinic_offices = ClinicOfficeSerializer(many=True, read_only=True)
     collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
     average_rating = serializers.FloatField(read_only=True)
     review_count = serializers.IntegerField(read_only=True)
@@ -151,7 +150,6 @@ class ClinicProfileSimpleSerializer(serializers.ModelSerializer):
     clinic_specialities = ClinicSpecialitiesSerializer(many=True, read_only=True)
     unity_facilities = MedicalFacilitiesSerializer(many=True, read_only=True)
     medical_unit_types = MedicalUnityTypesSerializer(many=True, read_only=True)
-    clinic_offices = ClinicOfficeSerializer(many=True, read_only=True)
     collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
     average_rating = serializers.FloatField(read_only=True)
     review_count = serializers.IntegerField(read_only=True)

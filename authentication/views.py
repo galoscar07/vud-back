@@ -352,10 +352,6 @@ class UpdateClinicProfileView(APIView):
         if clinic_facilities:
             clinic_facilities = json.loads(clinic_facilities)
 
-        hqs = request.data.get('hq', None)
-        if hqs:
-            hqs = json.loads(hqs)
-
         doctors = request.data.get('doctor', None)
         if doctors:
             doctors = json.loads(doctors)
@@ -395,22 +391,11 @@ class UpdateClinicProfileView(APIView):
                 clinic_profile.unity_facilities.add(clinic_fac)
             except MedicalFacilities.DoesNotExist:
                 pass
-        index = 0
-        for hq in hqs:
-            photo_key = "|".join(hq['name'].split()) + "_hq_" + str(index)
-            photo = request.data.get(photo_key, None)
-            elem = ClinicOffice.objects.create(
-                name=hq['name'],
-                address=hq['address'],
-                link=hq['link'],
-                profile_picture=photo
-            )
-            for mut in hq['medical_unit_types']:
-                mm = MedicalUnityTypes.objects.get(id=mut)
-                elem.medical_unit_types.add(mm)
-            elem.save()
-            clinic_profile.clinic_offices.add(elem)
 
+        if len(doctors) > 200:
+            return Response({"error": "Nu poti adaug mai mult de 200 de doctori"}, status=400)
+
+        index = 0
         for doc in doctors:
             photo_key = "|".join(doc['name'].split()) + "_doc_" + str(index)
             photo = request.data.get(photo_key, None)

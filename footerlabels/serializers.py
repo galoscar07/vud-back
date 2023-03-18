@@ -59,11 +59,3 @@ class CollaboratorDoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = CollaboratorDoctor
         fields = '__all__'
-
-
-class ClinicOfficeSerializer(serializers.ModelSerializer):
-    medical_unit_types = MedicalUnityTypesSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = ClinicOffice
-        fields = '__all__'
