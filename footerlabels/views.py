@@ -120,7 +120,7 @@ class ClinicList(generics.ListAPIView):
     queryset = Clinic.objects.annotate(
             average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
             review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
-        ).all()
+        ).filter(is_visible=True)
     pagination_class = ClinicPagination
 
     def get_queryset(self):
@@ -158,7 +158,7 @@ class TopClinicsAPIView(APIView):
         clinics = Clinic.objects.annotate(
             average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
             review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
-        ).order_by('-average_rating')[:4]
+        ).filter(is_visible=True).order_by('-average_rating')[:4]
 
         # Serialize the clinics data
         serializer = ClinicProfileSimpleSerializer(clinics, many=True)
@@ -176,7 +176,7 @@ class ClinicDetailAPIView(RetrieveAPIView):
     queryset = Clinic.objects.annotate(
             average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
             review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
-        )
+        ).filter(is_visible=True)
     serializer_class = ClinicProfileSerializer
     lookup_field = 'id'
 

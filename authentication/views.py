@@ -185,8 +185,6 @@ class GetUserProfileAPIView(APIView):
                 clinic_profile = user.clinic_profile
                 if clinic_profile.step != '5':
                     return Response({"step": clinic_profile.step}, status=200)
-                if not user.is_visible:
-                    return Response({"step": 5}, status=200)
                 serializer = ClinicProfileSerializer(user.clinic_profile)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             elif user.is_doctor:

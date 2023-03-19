@@ -35,8 +35,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True, db_index=True)
     # Used for verifying email address
     is_verified = models.BooleanField(default=False)
-    # Used for making the account visible
-    is_visible = models.BooleanField(default=False, )
     # Only for admin user
     is_staff = models.BooleanField(default=False)
 
@@ -113,7 +111,7 @@ class Clinic(models.Model):
     clinic_town = models.CharField(max_length=255, blank=True, null=True)
     clinic_county = models.CharField(max_length=255, blank=True, null=True)
     clinic_other_details = models.CharField(max_length=255, blank=True, null=True)
-    primary_phone = PhoneNumberField(blank=True)
+    primary_phone = models.CharField(max_length=255, blank=True, null=True)
     secondary_phone = models.CharField(max_length=255, blank=True, null=True)
     primary_email = models.EmailField(blank=True)
     secondary_email = models.CharField(max_length=610, blank=True, null=True)
@@ -142,6 +140,9 @@ class Clinic(models.Model):
 
     # Schedule
     clinic_schedule = models.TextField(null=True, blank=True)
+
+    # Is visible
+    is_visible = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Clinica'
