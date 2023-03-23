@@ -15,14 +15,14 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from authentication.serializers import RegisterSerializer, EmailVerificationSerializer, LoginSerializer, \
     ResetPasswordEmailSerializer, SetNewPasswordSerializer, PasswordTokenCheckSerializer, \
-    UserUpdateUserProfileSerializer, ClinicProfileSerializer, DoctorProfileSerializer
+    UserUpdateUserProfileSerializer, ClinicProfileSerializer, DoctorProfileSerializer, DeleteUserSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, ClinicOffice, \
+from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, \
     CollaboratorDoctor, AcademicDegree, Speciality, MedicalSkills
-from .models import User, Clinic, Doctor
+from .models import User, Clinic, Doctor, Document
 from .utils import Util
 
 
@@ -173,6 +173,22 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
         return Response({'success': True, 'message': 'Password reset success'}, status=status.HTTP_200_OK)
 
 
+class DeleteUserView(generics.DestroyAPIView):
+    serializer_class = DeleteUserSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def delete(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = request.user
+        password = serializer.validated_data['confirm_password']
+        if not user.check_password(password):
+            return Response({'confirm_password': 'Invalid password'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class GetUserProfileAPIView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -182,9 +198,6 @@ class GetUserProfileAPIView(APIView):
         if user.is_authenticated:
             # if the user is a student
             if user.is_clinic:
-                clinic_profile = user.clinic_profile
-                if clinic_profile.step != '5':
-                    return Response({"step": clinic_profile.step}, status=200)
                 serializer = ClinicProfileSerializer(user.clinic_profile)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             elif user.is_doctor:
@@ -233,25 +246,6 @@ class UserViewSet(generics.GenericAPIView):
 class UpdateAdminData(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    @swagger_auto_schema(
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'first_name': openapi.Schema(type=openapi.TYPE_STRING),
-                'last_name': openapi.Schema(type=openapi.TYPE_STRING),
-                'phone_number': openapi.Schema(type=openapi.TYPE_STRING),
-                'contact_email': openapi.Schema(type=openapi.TYPE_STRING),
-                'phone_number_optional': openapi.Schema(type=openapi.TYPE_STRING),
-                'contact_email_optional': openapi.Schema(type=openapi.TYPE_STRING),
-                'company': openapi.Schema(type=openapi.TYPE_STRING),
-                'company_role': openapi.Schema(type=openapi.TYPE_STRING),
-                'county': openapi.Schema(type=openapi.TYPE_STRING),
-                'town': openapi.Schema(type=openapi.TYPE_STRING),
-                'street': openapi.Schema(type=openapi.TYPE_STRING),
-                'number': openapi.Schema(type=openapi.TYPE_STRING),
-            },
-        ),
-    )
     def put(self, request):
         user = request.user
 
@@ -265,6 +259,8 @@ class UpdateAdminData(APIView):
             user.phone_number_optional = request.data.get('phone_number_optional', '')
             user.contact_email_optional = request.data.get('contact_email_optional', '')
             # Save clinic data
+            file1 = request.data.get('file1', None)
+            file2 = request.data.get('file2', None)
             try:
                 clinic_profile = Clinic.objects.get(user=user)
                 clinic_profile.company = request.data.get('company', '')
@@ -275,6 +271,10 @@ class UpdateAdminData(APIView):
                 clinic_profile.number = request.data.get('number', '')
                 clinic_profile.step = 3
                 clinic_profile.save()
+                doc1 = Document.objects.create(owner=user, file=file1)
+                doc2 = Document.objects.create(owner=user, file=file2)
+                doc1.save()
+                doc2.save()
             except Clinic.DoesNotExist as e:
                 return Response({'error': 'Clinic profile does\'t exist'})
 

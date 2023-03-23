@@ -3,8 +3,7 @@ from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, Permi
 from phonenumber_field.modelfields import PhoneNumberField
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from footerlabels.models import MedicalUnityTypes, ClinicOffice, ClinicSpecialities, MedicalFacilities, \
-    CollaboratorDoctor
+from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, CollaboratorDoctor
 
 
 class UserManager(BaseUserManager):
@@ -124,19 +123,16 @@ class Clinic(models.Model):
     description = models.TextField(null=True, blank=True)
 
     # Doctor Collaborator
-    collaborator_doctor = models.ManyToManyField(CollaboratorDoctor)
-
-    # Clinic offices
-    clinic_offices = models.ManyToManyField(ClinicOffice)
+    collaborator_doctor = models.ManyToManyField(CollaboratorDoctor, blank=True)
 
     # Clinic Speciality
-    clinic_specialities = models.ManyToManyField(ClinicSpecialities)
+    clinic_specialities = models.ManyToManyField(ClinicSpecialities, blank=True)
 
     # Unity Facilities
-    unity_facilities = models.ManyToManyField(MedicalFacilities)
+    unity_facilities = models.ManyToManyField(MedicalFacilities, blank=True)
 
     # Medical Unity Types
-    medical_unit_types = models.ManyToManyField(MedicalUnityTypes)
+    medical_unit_types = models.ManyToManyField(MedicalUnityTypes, blank=True)
 
     # Schedule
     clinic_schedule = models.TextField(null=True, blank=True)
@@ -149,7 +145,7 @@ class Clinic(models.Model):
         verbose_name_plural = 'Clinici'
 
     def __str__(self):
-        return f'Id utilizator: {self.user.id}, companie: {self.company}, clinic_id: {self.id}'
+        return f'Clinica: {self.company}, Id Clinica: {self.id}'
 
 
 class ClinicReview(models.Model):
@@ -170,7 +166,6 @@ class ClinicReview(models.Model):
 
 class Doctor(models.Model):
     user = models.OneToOneField(User, related_name='doctor_profile', on_delete=models.CASCADE)
-    # TODO add the rest of the fields
 
     class Meta:
         verbose_name = 'Doctor'
@@ -179,18 +174,20 @@ class Doctor(models.Model):
     def __str__(self):
         return f'Id utilizator: {self.user.id}, nume: {self.user.first_name} {self.user.last_name}'
 
+def upload_path_clinic_office(instance, filename):
+    return '/'.join(['files/documents', str(instance.id), filename])
+
 
 class Document(models.Model):
     owner = models.ForeignKey('User', related_name="files",  on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, null=True, blank=True)
-    file = models.FileField()
+    file = models.FileField(upload_to=upload_path_clinic_office)
 
     class Meta:
         verbose_name = 'Document'
         verbose_name_plural = 'Documente'
 
     def __str__(self):
-        return f'Document: {self.name}, detinator: {self.owner.id}'
+        return f'Document: {self.file}, detinator: {self.owner.id}'
 
 
 

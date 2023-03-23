@@ -3,7 +3,7 @@ from django.urls import path
 from footerlabels.views import ClinicList, TopClinicsAPIView, ClinicDetailAPIView, ReviewCreate
 from .views import RegisterView, LoginAPIView, VerifyEmail, PasswordTokenCheckAPIView, RequestPasswordResetAPIView, \
     SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet, UpdateAdminData, UpdateClinicTypeData, \
-    UpdateClinicProfileView
+    UpdateClinicProfileView, DeleteUserView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -21,6 +21,9 @@ urlpatterns = [
     path('password-reset-request/', RequestPasswordResetAPIView.as_view(), name='request-password-reset'),
     path('password-reset/<uidb>/<token>/', PasswordTokenCheckAPIView.as_view(), name='password-reset-confirm'),
     path('password-reset-complete/', SetNewPasswordAPIView.as_view(), name='password-reset-complete'),
+
+    # Delete Profile
+    path('delete-profile/', DeleteUserView.as_view(), name='delete-profile'),
 
     # Get user profile
     path('get-user-profile/', GetUserProfileAPIView.as_view(), name='get-user-profile'),

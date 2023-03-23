@@ -98,21 +98,6 @@ class MedicalFacilities(models.Model):
         return self.label
 
 
-class ClinicOffice(models.Model):
-    name = models.CharField(max_length=255, blank=True, null=True)
-    address = models.CharField(max_length=500, blank=True, null=True)
-    link = models.CharField(max_length=255, blank=True, null=True)
-    profile_picture = models.ImageField(upload_to=upload_path_clinic_office, blank=True, null=True)
-    medical_unit_types = models.ManyToManyField(MedicalUnityTypes)
-
-    class Meta:
-        verbose_name = 'Sediu Clinica'
-        verbose_name_plural = 'Sedii Clinici'
-
-    def __str__(self):
-        return f'Nume Sediu: {self.name}, Id: {self.id}'
-
-
 class CollaboratorDoctor(models.Model):
     profile_picture = models.ImageField(upload_to=upload_path_collaborator_doctor, blank=True, null=True)
     doctor_name = models.CharField(max_length=255, blank=True, null=True)

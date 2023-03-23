@@ -114,6 +114,10 @@ class SetNewPasswordSerializer(serializers.Serializer):
             raise AuthenticationFailed('The reset link is invalid', 401)
 
 
+class DeleteUserSerializer(serializers.Serializer):
+    confirm_password = serializers.CharField(max_length=128)
+
+
 class UserUpdateUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

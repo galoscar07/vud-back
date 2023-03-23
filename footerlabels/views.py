@@ -182,8 +182,7 @@ class ClinicDetailAPIView(RetrieveAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        # TODO: Get only the visible ones - reviews
-        context['reviews'] = ClinicReview.objects.filter(clinic=self.kwargs['id'])
+        context['reviews'] = ClinicReview.objects.filter(clinic=self.kwargs['id'], is_visible=True)
 
         return context
 
