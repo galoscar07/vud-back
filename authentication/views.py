@@ -1,3 +1,6 @@
+import string
+from random import choices
+
 import django.db
 import jwt
 import json
@@ -9,6 +12,7 @@ from django.utils.encoding import smart_bytes, smart_str, DjangoUnicodeDecodeErr
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 from rest_framework import generics, status, views, permissions
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -22,7 +26,7 @@ from drf_yasg import openapi
 
 from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, \
     CollaboratorDoctor, AcademicDegree, Speciality, MedicalSkills
-from .models import User, Clinic, Doctor, Document
+from .models import User, Clinic, Doctor, Document, RequestToRedeemClinic
 from .utils import Util
 
 
@@ -418,3 +422,43 @@ class UpdateClinicProfileView(APIView):
 
         clinic_profile.save()
         return Response({"success": "Success"}, status=200)
+
+
+@api_view(['POST'])
+def redeem_clinic_request(request):
+    # Get parameters from request
+    first_name = request.data.get('first_name', '')
+    last_name = request.data.get('last_name', '')
+    email = request.data.get('email', '')
+    phone = request.data.get('phone', '')
+    company_role = request.data.get('company_role', '')
+    message = request.data.get('message', '')
+    clinic_id = request.data.get('clinic_id', '')
+    file1 = request.data.get('file1', None)
+    file2 = request.data.get('file2', None)
+
+    # Generate random password
+    password = ''.join(choices(string.ascii_letters + string.digits, k=12))
+
+    # Create new user
+    user = User.objects.create_user(
+        username=email,
+        email=email,
+        password=password,
+        first_name=first_name,
+        last_name=last_name,
+    )
+
+    # Create new request to sign up model
+    RequestToRedeemClinic.objects.create(
+        user=user,
+        phone=phone,
+        company_role=company_role,
+        clinic_to_redeem=clinic_id,
+        message=message,
+    )
+
+    Document.objects.create(owner=user, file=file1)
+    Document.objects.create(owner=user, file=file2)
+
+    return Response({'success': True})

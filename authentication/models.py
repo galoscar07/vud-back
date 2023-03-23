@@ -190,5 +190,18 @@ class Document(models.Model):
         return f'Document: {self.file}, detinator: {self.owner.id}'
 
 
+class RequestToRedeemClinic(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    clinic_to_redeem = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20)
+    company_role = models.CharField(max_length=50)
+    message = models.TextField()
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name} - {self.company_role}"
+
+    class Meta:
+        verbose_name = 'Revendica Clinica'
+        verbose_name_plural = 'Revendica Clinici'
 
 

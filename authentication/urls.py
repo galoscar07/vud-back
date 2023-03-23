@@ -3,7 +3,7 @@ from django.urls import path
 from footerlabels.views import ClinicList, TopClinicsAPIView, ClinicDetailAPIView, ReviewCreate
 from .views import RegisterView, LoginAPIView, VerifyEmail, PasswordTokenCheckAPIView, RequestPasswordResetAPIView, \
     SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet, UpdateAdminData, UpdateClinicTypeData, \
-    UpdateClinicProfileView, DeleteUserView
+    UpdateClinicProfileView, DeleteUserView, redeem_clinic_request
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -38,6 +38,9 @@ urlpatterns = [
     # Date administrator - page - clinica
     path('update-clinic-type-data/', UpdateClinicTypeData.as_view(), name='update-admin-data'),
     path('update-clinic-profile/', UpdateClinicProfileView.as_view(), name='update-clinic-profile'),
+
+    # Redeem clinic
+    path('revendica-clinica/', redeem_clinic_request, name='redeem_clinic'),
 
     path('get-clinics/', ClinicList.as_view(), name='get-clinics-filters'),
     path('get-top-clinics/', TopClinicsAPIView.as_view(), name='get-top-clinics'),
