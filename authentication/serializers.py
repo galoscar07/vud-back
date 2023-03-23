@@ -137,13 +137,18 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class ClinicProfileSerializer(serializers.ModelSerializer):
-    reviews = ReviewSerializer(many=True, read_only=True)
+    reviews = serializers.SerializerMethodField()
     clinic_specialities = ClinicSpecialitiesSerializer(many=True, read_only=True)
     unity_facilities = MedicalFacilitiesSerializer(many=True, read_only=True)
     medical_unit_types = MedicalUnityTypesSerializer(many=True, read_only=True)
     collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
     average_rating = serializers.FloatField(read_only=True)
     review_count = serializers.IntegerField(read_only=True)
+
+    def get_reviews(self, obj):
+        visible_reviews = obj.reviews.filter(is_visible=True)
+        serializer = ReviewSerializer(visible_reviews, many=True)
+        return serializer.data
 
     class Meta:
         model = Clinic

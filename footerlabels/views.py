@@ -180,12 +180,6 @@ class ClinicDetailAPIView(RetrieveAPIView):
     serializer_class = ClinicProfileSerializer
     lookup_field = 'id'
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['reviews'] = ClinicReview.objects.filter(clinic=self.kwargs['id'], is_visible=True)
-
-        return context
-
 
 class ReviewCreate(APIView):
     def post(self, request):
