@@ -445,9 +445,10 @@ def redeem_clinic_request(request):
         username=email,
         email=email,
         password=password,
-        first_name=first_name,
-        last_name=last_name,
     )
+
+    user.first_name = first_name
+    user.last_name = last_name
 
     # Create new request to sign up model
     RequestToRedeemClinic.objects.create(
