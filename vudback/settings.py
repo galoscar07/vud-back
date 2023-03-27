@@ -27,6 +27,7 @@ DEBUG = True
 
 # TODO complete this with FE
 ALLOWED_HOSTS = [
+    'http://vud-dev.eu-central-1.elasticbeanstalk.com/',
     'https://vud-fe.herokuapp.com',
     'https://vud-be.herokuapp.com'
 ]
@@ -111,16 +112,28 @@ WSGI_APPLICATION = 'vudback.wsgi.application'
     # }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'vud',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '5432',
+if 'RDS_DB_NAME' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'vud',
+            'USER': '',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
 
 REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'error',
