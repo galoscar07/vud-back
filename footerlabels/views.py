@@ -129,6 +129,14 @@ class ClinicList(generics.ListAPIView):
         # Filtering by clinic name
         name = self.request.query_params.get('name', None)
         if name is not None:
+            clinic_specialities = ClinicSpecialities.objects.filter(label__iexact=name)
+            if len(clinic_specialities) > 0:
+                specialities = []
+                for e in clinic_specialities:
+                    specialities.append(e.id)
+                queryset = queryset.filter(clinic_specialities__id__in=specialities)
+                return queryset
+
             queryset = queryset.filter(clinic_name__icontains=name)
 
         # Filtering by clinic town
@@ -150,6 +158,20 @@ class ClinicList(generics.ListAPIView):
             queryset = queryset.filter(unity_facilities__id__in=facilities)
 
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+
+        name = request.query_params.get('name', None)
+
+        clinic_specialities = ClinicSpecialities.objects.filter(label__iexact=name)
+        if len(clinic_specialities) > 0:
+            specialities = []
+            for e in clinic_specialities:
+                specialities.append(str(e.id))
+            response.data['specialities'] = "|".join(specialities)
+
+        return response
 
 
 class TopClinicsAPIView(APIView):
