@@ -26,6 +26,8 @@ AUTH_USER_MODEL = 'authentication.User'
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    '16.170.180.97',
+    '172.31.11.42',
     '0.0.0.0',
     '127.0.0.1',
     'https://vud-fe.herokuapp.com',
@@ -179,7 +181,6 @@ CORS_ORIGIN_WHITELIST = [
     'https://vud-fe.herokuapp.com'
 ]
 
-# TODO Remove this
 CORS_ORIGIN_ALLOW_ALL = True
 
 AWS_ACCESS_KEY_ID = 'AKIAQSXTX7C7RVCD7DYT'
@@ -190,12 +191,6 @@ AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
-# AWS_LOCATION = 'static'
-# STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
-# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-# DEFAULT_FILE_STORAGE = 'vudback.storage_backends.MediaStorage'
-#
-# STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -203,5 +198,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-# import django_heroku
-# django_heroku.settings(locals())
