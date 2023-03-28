@@ -25,8 +25,9 @@ SECRET_KEY = 'django-insecure-6vzevt241lb^)k)5qj=^#w1&*btut9inc_4c-#i_^gzjm34gl7
 AUTH_USER_MODEL = 'authentication.User'
 DEBUG = True
 
-# TODO complete this with FE
 ALLOWED_HOSTS = [
+    '0.0.0.0',
+    '127.0.0.1',
     'https://vud-fe.herokuapp.com',
     'https://vud-be.herokuapp.com'
 ]
@@ -184,25 +185,23 @@ CORS_ORIGIN_ALLOW_ALL = True
 AWS_ACCESS_KEY_ID = 'AKIAQSXTX7C7RVCD7DYT'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'vud-2023'
+AWS_DEFAULT_ACL = 'public-read'
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
-AWS_LOCATION = 'static'
+# AWS_LOCATION = 'static'
+# STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# DEFAULT_FILE_STORAGE = 'vudback.storage_backends.MediaStorage'
+#
+# STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'mysite/static'),
-]
-STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-DEFAULT_FILE_STORAGE = 'vudback.storage_backends.MediaStorage'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-
 
 # import django_heroku
 # django_heroku.settings(locals())
