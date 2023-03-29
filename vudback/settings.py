@@ -26,7 +26,8 @@ AUTH_USER_MODEL = 'authentication.User'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'env-vud.eba-ccip93hm.us-west-2.elasticbeanstalk.com'
+    'env-vud.eba-ccip93hm.us-west-2.elasticbeanstalk.com',
+    '172.31.35.104',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
