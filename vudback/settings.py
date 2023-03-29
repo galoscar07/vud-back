@@ -26,12 +26,7 @@ AUTH_USER_MODEL = 'authentication.User'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '16.170.180.97',
-    '172.31.11.42',
-    '0.0.0.0',
-    '127.0.0.1',
-    'https://vud-fe.herokuapp.com',
-    'https://vud-be.herokuapp.com'
+
 ]
 
 CSRF_TRUSTED_ORIGINS = [
