@@ -47,7 +47,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('authentication.urls')),
     path('options/', include('footerlabels.urls')),
-    path('/', HelloWorldView.as_view(), name='hello-world'),
+    path('', HelloWorldView.as_view(), name='hello-world'),
 
     # re_path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     # re_path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
