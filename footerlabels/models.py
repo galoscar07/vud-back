@@ -13,6 +13,10 @@ def upload_path_banner_image(instance, filename):
     return '/'.join(['images/banner', str(instance.id), str(instance.title), filename])
 
 
+def upload_path_addsense_image(instance, filename):
+    return '/'.join(['images/add_sense', str(instance.id), str(instance.alt), filename])
+
+
 def upload_path_facilities(instance, filename):
     return '/'.join(['images/facilities', str(instance.id), str(instance.label), filename])
 
@@ -138,3 +142,18 @@ class BannerCards(models.Model):
 
     def __str__(self):
         return f'Titlu: {self.title}, id: {self.id}'
+
+
+class AddSense(models.Model):
+    href = models.CharField(max_length=500, blank=False)
+    alt = models.CharField(max_length=255, blank=False)
+    location = models.CharField(max_length=255, blank=False)
+    photo = models.ImageField(upload_to=upload_path_addsense_image, blank=False)
+    size = models.CharField(max_length=255, blank=False)
+
+    class Meta:
+        verbose_name = 'Add Card'
+        verbose_name_plural = 'Add-uri Cards'
+
+    def __str__(self):
+        return f'Titlu: {self.alt}, id: {self.id}'

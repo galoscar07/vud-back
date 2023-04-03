@@ -9,10 +9,10 @@ from rest_framework.views import APIView
 from authentication.models import Clinic, ClinicReview
 from authentication.serializers import ClinicProfileSerializer, ReviewSerializer, ClinicProfileSimpleSerializer
 from footerlabels.models import Footerlabels, MedicalUnityTypes, AcademicDegree, Speciality, MedicalSkills, \
-    ClinicSpecialities, MedicalFacilities, Newsletter, BannerCards
+    ClinicSpecialities, MedicalFacilities, Newsletter, BannerCards, AddSense
 from footerlabels.serializers import FooterlabelsSerializer, MedicalUnityTypesSerializer, AcademicDegreeSerializer, \
     SpecialitySerializer, MedicalSkillsSerializer, ClinicSpecialitiesSerializer, MedicalFacilitiesSerializer, \
-    BannerCardsSerializer
+    BannerCardsSerializer, AddsCardsSerializer
 
 
 class FooterLabelList(APIView):
@@ -92,6 +92,13 @@ class BannerCardList(APIView):
     def get(self, request):
         banners = BannerCards.objects.all()
         serializer = BannerCardsSerializer(banners, many=True)
+        return Response(serializer.data, status=200)
+
+
+class AddsCardList(APIView):
+    def get(self, request):
+        adds = AddSense.objects.all()
+        serializer = AddsCardsSerializer(adds, many=True)
         return Response(serializer.data, status=200)
 
 

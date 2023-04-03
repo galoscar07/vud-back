@@ -11,6 +11,7 @@ urlpatterns = [
     path('clinic-specialities/', views.ClinicSpecialitiesList.as_view(), name='clinic-specialities'),
     path('medical-facilities/', views.MedicalFacilitiesList.as_view(), name='medical-facilities'),
     path('banners/', views.BannerCardList.as_view(), name='banners'),
+    path('adds/', views.AddsCardList.as_view(), name='adds'),
     path('newsletter/', views.NewsletterView.as_view(), name='newsletter'),
 ]
 
