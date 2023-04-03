@@ -32,8 +32,6 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     'https://vud-fe.herokuapp.com',
-    'https://vud-be.herokuapp.com',
-    '172.31.35.104',
 ]
 
 # Application definition
