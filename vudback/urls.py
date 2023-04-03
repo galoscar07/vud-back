@@ -40,7 +40,7 @@ urlpatterns = [
     path('auth/', include('authentication.urls')),
     path('options/', include('footerlabels.urls')),
 
-    # re_path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    # re_path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    re_path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    re_path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 

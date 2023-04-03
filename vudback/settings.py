@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '172.31.35.104',
+    '127.0.0.1',
     'env-vud.eba-ccip93hm.us-west-2.elasticbeanstalk.com',
 ]
 
