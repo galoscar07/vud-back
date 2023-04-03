@@ -26,13 +26,14 @@ AUTH_USER_MODEL = 'authentication.User'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'env-vud.eba-ccip93hm.us-west-2.elasticbeanstalk.com',
     '172.31.35.104',
+    'env-vud.eba-ccip93hm.us-west-2.elasticbeanstalk.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://vud-fe.herokuapp.com',
-    'https://vud-be.herokuapp.com'
+    'https://vud-be.herokuapp.com',
+    '172.31.35.104',
 ]
 
 # Application definition
