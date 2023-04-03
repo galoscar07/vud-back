@@ -19,6 +19,8 @@ from django.urls import path, include, re_path
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from vudback import settings
 
@@ -35,12 +37,19 @@ schema_view = get_schema_view(
    permission_classes=[permissions.AllowAny],
 )
 
+
+class HelloWorldView(APIView):
+    def get(self, request):
+        return Response("Hello, World!")
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('authentication.urls')),
     path('options/', include('footerlabels.urls')),
+    path('/', HelloWorldView.as_view(), name='hello-world'),
 
-    re_path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    re_path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    # re_path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    # re_path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 
