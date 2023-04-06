@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'vud-back-dev.eu-central-1.elasticbeanstalk.com',
     'env-vud.eba-ccip93hm.us-west-2.elasticbeanstalk.com',
+    'https://vud-be.herokuapp.com'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
