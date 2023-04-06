@@ -19,17 +19,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
+# TODO .env file
 SECRET_KEY = 'django-insecure-6vzevt241lb^)k)5qj=^#w1&*btut9inc_4c-#i_^gzjm34gl7'
 
 AUTH_USER_MODEL = 'authentication.User'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '172.31.35.104',
     '127.0.0.1',
-    'vud-back-dev.eu-central-1.elasticbeanstalk.com',
-    'env-vud.eba-ccip93hm.us-west-2.elasticbeanstalk.com',
     'https://vud-be.herokuapp.com'
 ]
 
@@ -103,34 +100,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'vudback.wsgi.application'
 
-
+# TODO set the env variable
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-if 'RDS_DB_NAME' in os.environ:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ['RDS_DB_NAME'],
-            'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': os.environ['RDS_PASSWORD'],
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+# if 'RDS_DB_NAME' in os.environ:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#             'NAME': os.environ['RDS_DB_NAME'],
+#             'USER': os.environ['RDS_USERNAME'],
+#             'PASSWORD': os.environ['RDS_PASSWORD'],
+#             'HOST': os.environ['RDS_HOSTNAME'],
+#             'PORT': os.environ['RDS_PORT'],
+#         }
 #     }
-# }
+# else:
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
 
 REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'error',
@@ -181,6 +172,7 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# TODO set the env variables
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USER_TLS = True
@@ -190,34 +182,40 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
-# Cors
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'https://vud-be.herokuapp.com',
-    'https://vud-fe.herokuapp.com'
-]
-
 CORS_ORIGIN_ALLOW_ALL = True
 
+# TODO set the env variables
+# Static Settings
+# USE_S3 = os.getenv('USE_S3') == 'TRUE'
+
+# if USE_S3:
+    # aws settings
 AWS_ACCESS_KEY_ID = 'AKIAQSXTX7C7RVCD7DYT'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'vud-2023'
-AWS_DEFAULT_ACL = 'public-read'
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+# Only public read for now
+AWS_QUERYSTRING_AUTH = False
+AWS_DEFAULT_ACL='public-read'
+# s3 static settings
+STATIC_LOCATION = 'static'
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+STATICFILES_STORAGE = 'vudback.storage_backends.StaticStorage'
+# s3 public media settings
+PUBLIC_MEDIA_LOCATION = 'media'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+DEFAULT_FILE_STORAGE = 'vudback.storage_backends.MediaStorage'
+# else:
+# STATIC_URL = '/staticfiles/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#     MEDIA_URL = '/mediafiles/'
+#     MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
-# STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
-STATIC_ROOT = os.path.join(BASE_DIR, "..", "www", "static")
-STATIC_URL = '/static/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-
-import django_heroku
-django_heroku.settings(locals())
-
+# TODO only for heroku settings
+# import django_heroku
+# django_heroku.settings(locals())
+#
