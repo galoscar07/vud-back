@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     '172.31.30.95',
+    'server.vreaudoctor.ro',
     'vud-api.eu-central-1.elasticbeanstalk.com',
     'https://vud-be.herokuapp.com'
 ]
