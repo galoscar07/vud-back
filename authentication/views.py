@@ -43,18 +43,13 @@ class RegisterView(generics.GenericAPIView):
         user = User.objects.get(email=user_data['email'])
         token = RefreshToken.for_user(user).access_token
 
-        # TODO: Put FE link to redirect
-        # current_site = get_current_site(request)
-        # relative_link = reverse('email-verify')
-        absolute_url = f'https://vud-fe.herokuapp.com/email-verification/?token={str(token)}'
+        absolute_url = f'https://vreaudoctor.ro/email-verification/?token={str(token)}'
 
         data = {
             'url': absolute_url,
             'email': user.email
         }
-        user_data['link'] = absolute_url
         Util.send_email(data=data, email_type='verify-email')
-        print(absolute_url)
 
         return Response(user_data, status=status.HTTP_201_CREATED)
 
@@ -92,18 +87,14 @@ class VerifyEmailResend(generics.GenericAPIView):
         try:
             user = User.objects.get(email=request.data.get('email'))
             token = RefreshToken.for_user(user).access_token
-            # current_site = get_current_site(request)
-            # relative_link = reverse('email-verify')
-            absolute_url = f'https://vud-fe.herokuapp.com/email-verification/?token={str(token)}'
-            # absolute_url = f'http://{current_site}{relative_link}?token={str(token)}'
+
+            absolute_url = f'https://vreaudoctor.ro/email-verification/?token={str(token)}'
 
             data = {
                 'url': absolute_url,
                 'email': user.email
             }
             Util.send_email(data=data, email_type='verify-email')
-            print(absolute_url)
-            user_data['link'] = absolute_url
 
             return Response(user_data, status=status.HTTP_201_CREATED)
         except User.DoesNotExist:
@@ -127,7 +118,7 @@ class RequestPasswordResetAPIView(APIView):
     def post(self, request):
         data = {'request': request, 'data': request.data}
         email = request.data.get('email', '')
-
+        import pdb;pdb.set_trace()
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
@@ -136,17 +127,13 @@ class RequestPasswordResetAPIView(APIView):
         if user:
             uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
-            # TODO: Put FE link to redirect
-            current_site = get_current_site(request=request)
-            absolute_url = f'https://vud-fe.herokuapp.com/reset-password/?token={str(token)}&uidb={str(uidb64)}'
-            # relative_link = reverse('password-reset-confirm', kwargs={'uidb': uidb64, 'token': token})
-            # absolute_url = f'http://{current_site}{relative_link}'
+            absolute_url = f'https://vreaudoctor.ro/email-verification/?token={str(token)}&uidb={str(uidb64)}'
+
             data = {
                 'url': absolute_url,
                 'email': user.email
             }
-            Util.send_email(data=data, email_type='verify-email')
-            print(absolute_url)
+            Util.send_email(data=data, email_type='reset-password')
 
             return Response({'url': absolute_url}, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_200_OK)
