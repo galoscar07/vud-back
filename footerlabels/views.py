@@ -9,10 +9,10 @@ from rest_framework.views import APIView
 from authentication.models import Clinic, ClinicReview
 from authentication.serializers import ClinicProfileSerializer, ReviewSerializer, ClinicProfileSimpleSerializer
 from footerlabels.models import Footerlabels, MedicalUnityTypes, AcademicDegree, Speciality, MedicalSkills, \
-    ClinicSpecialities, MedicalFacilities, Newsletter, BannerCards, AddSense
+    ClinicSpecialities, MedicalFacilities, Newsletter, BannerCards, AddSense, BlogPost, Tag
 from footerlabels.serializers import FooterlabelsSerializer, MedicalUnityTypesSerializer, AcademicDegreeSerializer, \
     SpecialitySerializer, MedicalSkillsSerializer, ClinicSpecialitiesSerializer, MedicalFacilitiesSerializer, \
-    BannerCardsSerializer, AddsCardsSerializer
+    BannerCardsSerializer, AddsCardsSerializer, BlogPostSerializer, TagSerializer
 
 
 class FooterLabelList(APIView):
@@ -229,3 +229,24 @@ class ReviewCreate(APIView):
             return Response(serializer.data, status=201)
         else:
             return Response(serializer.errors, status=400)
+
+
+class BlogPostListAPIView(generics.ListAPIView):
+    serializer_class = BlogPostSerializer
+
+    def get_queryset(self):
+        queryset = BlogPost.objects.all()
+        tags = self.request.query_params.getlist('tags')
+        if tags:
+            queryset = queryset.filter(tags__name__in=tags)
+        return queryset
+
+
+class BlogPostDetailAPIView(generics.RetrieveAPIView):
+    queryset = BlogPost.objects.all()
+    serializer_class = BlogPostSerializer
+
+
+class TagListAPIView(generics.ListAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer

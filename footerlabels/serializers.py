@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from footerlabels.models import Footerlabels, MedicalUnityTypes, AcademicDegree, Speciality, MedicalSkills, \
-    ClinicSpecialities, MedicalFacilities, CollaboratorDoctor, BannerCards, AddSense
+    ClinicSpecialities, MedicalFacilities, CollaboratorDoctor, BannerCards, AddSense, Tag, BlogPost
 
 
 class FooterlabelsSerializer(serializers.ModelSerializer):
@@ -64,4 +64,18 @@ class CollaboratorDoctorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CollaboratorDoctor
+        fields = '__all__'
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = '__all__'
+
+
+class BlogPostSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = BlogPost
         fields = '__all__'
