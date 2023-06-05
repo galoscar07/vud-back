@@ -43,7 +43,7 @@ class RegisterView(generics.GenericAPIView):
         user = User.objects.get(email=user_data['email'])
         token = RefreshToken.for_user(user).access_token
 
-        absolute_url = f'https://vreaudoctor.ro/email-verification/?token={str(token)}'
+        absolute_url = f'https://vreaudoctor.ro/email-verification/{str(token)}/'
 
         data = {
             'url': absolute_url,
@@ -88,7 +88,7 @@ class VerifyEmailResend(generics.GenericAPIView):
             user = User.objects.get(email=request.data.get('email'))
             token = RefreshToken.for_user(user).access_token
 
-            absolute_url = f'https://vreaudoctor.ro/email-verification/?token={str(token)}'
+            absolute_url = f'https://vreaudoctor.ro/email-verification/{str(token)}/'
 
             data = {
                 'url': absolute_url,
