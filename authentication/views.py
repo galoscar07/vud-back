@@ -6,7 +6,6 @@ import jwt
 import json
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 from django.utils.encoding import smart_bytes, smart_str, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -24,9 +23,8 @@ from authentication.serializers import RegisterSerializer, EmailVerificationSeri
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, \
-    CollaboratorDoctor, AcademicDegree, Speciality, MedicalSkills
-from .models import User, Clinic, Doctor, Document, RequestToRedeemClinic
+from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, AcademicDegree, Speciality
+from .models import User, Clinic, Document, RequestToRedeemClinic, CollaboratorDoctor
 from .utils import Util
 
 
@@ -118,7 +116,6 @@ class RequestPasswordResetAPIView(APIView):
     def post(self, request):
         data = {'request': request, 'data': request.data}
         email = request.data.get('email', '')
-        import pdb;pdb.set_trace()
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
@@ -208,7 +205,7 @@ class UserViewSet(generics.GenericAPIView):
         is_clinic = request.data.get('is_clinic', None)
         is_doctor = request.data.get('is_doctor', None)
 
-        if is_clinic is not None:
+        if is_clinic:
             user.is_clinic = is_clinic
             try:
                 clinic = Clinic.objects.create(user=user)
@@ -218,18 +215,23 @@ class UserViewSet(generics.GenericAPIView):
                 pass
             user.save()
             serializer = ClinicProfileSerializer(user.clinic_profile)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            data_to_be_send = serializer.data
+            data_to_be_send['is_clinic'] = True
+            return Response(data_to_be_send, status=status.HTTP_200_OK)
 
-        elif is_doctor is not None:
+        elif is_doctor:
             user.is_doctor = is_doctor
             try:
-                doctor = Doctor.objects.create(user=user)
+                doctor = CollaboratorDoctor.objects.create(user=user)
+                doctor.step = 2
                 doctor.save()
             except django.db.utils.IntegrityError:
                 pass
             user.save()
             serializer = DoctorProfileSerializer(user.doctor_profile)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            data_to_be_send = serializer.data
+            data_to_be_send['is_doctor'] = True
+            return Response(data_to_be_send, status=status.HTTP_200_OK)
 
         return Response({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -386,29 +388,152 @@ class UpdateClinicProfileView(APIView):
         if len(doctors) > 200:
             return Response({"error": "Nu poti adaug mai mult de 200 de doctori"}, status=400)
 
-        index = 0
-        for doc in doctors:
-            photo_key = "|".join(doc['name'].split()) + "_doc_" + str(index)
-            photo = request.data.get(photo_key, None)
-            elem = CollaboratorDoctor.objects.create(
-                doctor_name=doc['name'],
-                link=doc['link'],
-                profile_picture=photo
-            )
-            for mut in doc['academic_degree']:
-                mm = AcademicDegree.objects.get(id=mut)
-                elem.academic_degree.add(mm)
-            for mut in doc['speciality']:
-                mm = Speciality.objects.get(id=mut)
-                elem.speciality.add(mm)
-            for mut in doc['competences']:
-                mm = MedicalSkills.objects.get(id=mut)
-                elem.medical_skill.add(mm)
-            elem.save()
-            clinic_profile.collaborator_doctor.add(elem)
+        # index = 0
+        # for doc in doctors:
+        #     photo_key = "|".join(doc['name'].split()) + "_doc_" + str(index)
+        #     photo = request.data.get(photo_key, None)
+        #     elem = CollaboratorDoctor.objects.create(
+        #         doctor_name=doc['name'],
+        #         link=doc['link'],
+        #         profile_picture=photo
+        #     )
+        #     for mut in doc['academic_degree']:
+        #         mm = AcademicDegree.objects.get(id=mut)
+        #         elem.academic_degree.add(mm)
+        #     for mut in doc['speciality']:
+        #         mm = Speciality.objects.get(id=mut)
+        #         elem.speciality.add(mm)
+        #     for mut in doc['competences']:
+        #         mm = MedicalSkills.objects.get(id=mut)
+        #         elem.medical_skill.add(mm)
+        #     elem.save()
+        #     clinic_profile.collaborator_doctor.add(elem)
 
         clinic_profile.save()
         return Response({"success": "Success"}, status=200)
+
+
+class UpdateDoctorProfileView(APIView):
+    def put(self, request):
+        user = request.user
+        # check user is authenticated + user have clinic progfile
+        if not user.is_authenticated:
+            return Response({"error": 'Not logged'}, status=401)
+        if not user.is_doctor or not user.doctor_profile:
+            return Response({"error": 'No clinic profile'}, status=400)
+        # after you checked get the data from request
+        first_name = request.data.get('first_name', None)
+        last_name = request.data.get('last_name', None)
+        primary_phone = request.data.get('primary_phone', None)
+        primary_email = request.data.get('primary_email', None)
+        website = request.data.get('website', None)
+        website_facebook = request.data.get('website_facebook', None)
+        website_google = request.data.get('website_google', None)
+        website_linkedin = request.data.get('website_linkedin', None)
+        website_youtube = request.data.get('website_youtube', None)
+        whatsapp = request.data.get('whatsapp', None)
+        description = request.data.get('description', None)
+
+        academic_degree = request.data.get('academic_degree', None)
+        if academic_degree:
+            academic_degree = json.loads(academic_degree)
+
+        speciality = request.data.get('speciality', None)
+        if speciality:
+            speciality = json.loads(speciality)
+
+        medical_skill = request.data.get('medical_skill', None)
+        if medical_skill:
+            medical_skill = json.loads(medical_skill)
+
+        doctor_profile = user.doctor_profile
+
+        doctor_profile.first_name = first_name
+        doctor_profile.last_name = last_name
+        doctor_profile.primary_phone = primary_phone
+        doctor_profile.primary_email = primary_email
+        doctor_profile.website = website
+        doctor_profile.website_facebook = website_facebook
+        doctor_profile.website_google = website_google
+        doctor_profile.website_linkedin = website_linkedin
+        doctor_profile.website_youtube = website_youtube
+        doctor_profile.whatsapp = whatsapp
+        doctor_profile.description = description
+        doctor_profile.step = 5
+
+        for ad in academic_degree:
+            try:
+                doc_ad = AcademicDegree.objects.get(id=ad)
+                doctor_profile.academic_degree.add(doc_ad)
+            except AcademicDegree.DoesNotExist:
+                pass
+
+        for spec in speciality:
+            try:
+                doc_spec = Speciality.objects.get(id=spec)
+                doctor_profile.speciality.add(doc_spec)
+            except Speciality.DoesNotExist:
+                pass
+
+        for ms in medical_skill:
+            try:
+                doc_ms = Speciality.objects.get(id=ms)
+                doctor_profile.speciality.add(doc_ms)
+            except Speciality.DoesNotExist:
+                pass
+
+        file1 = request.data.get('file1', None)
+        file2 = request.data.get('file2', None)
+
+        doc1 = Document.objects.create(owner=user, file=file1)
+        doc2 = Document.objects.create(owner=user, file=file2)
+        doc1.save()
+        doc2.save()
+
+        # if len(doctors) > 200:
+        #     return Response({"error": "Nu poti adaug mai mult de 200 de doctori"}, status=400)
+
+        # index = 0
+        # for doc in doctors:
+        #     photo_key = "|".join(doc['name'].split()) + "_doc_" + str(index)
+        #     photo = request.data.get(photo_key, None)
+        #     elem = CollaboratorDoctor.objects.create(
+        #         doctor_name=doc['name'],
+        #         link=doc['link'],
+        #         profile_picture=photo
+        #     )
+        #     for mut in doc['academic_degree']:
+        #         mm = AcademicDegree.objects.get(id=mut)
+        #         elem.academic_degree.add(mm)
+        #     for mut in doc['speciality']:
+        #         mm = Speciality.objects.get(id=mut)
+        #         elem.speciality.add(mm)
+        #     for mut in doc['competences']:
+        #         mm = MedicalSkills.objects.get(id=mut)
+        #         elem.medical_skill.add(mm)
+        #     elem.save()
+        #     clinic_profile.collaborator_doctor.add(elem)
+
+        doctor_profile.save()
+        return Response({"success": "Success"}, status=200)
+
+
+@api_view(['POST'])
+def invite_collaborator_doctor(request):
+    # TODO implement this
+    user = request.user
+    if not user:
+        return Response({"error": "Error, user not logged"}, status=400)
+    pass
+
+
+@api_view(['POST'])
+def invite_collaborator_clinic(request):
+    # TODO implement this
+    user = request.user
+    if not user:
+        return Response({"error": "Error, user not logged"}, status=400)
+    pass
 
 
 @api_view(['POST'])

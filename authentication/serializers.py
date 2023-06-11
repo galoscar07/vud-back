@@ -6,9 +6,10 @@ from django.utils.http import urlsafe_base64_decode
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 
-from authentication.models import User, Doctor, Clinic, ClinicReview
+from authentication.models import User, CollaboratorDoctor, Clinic, ClinicReview, DoctorReview
 from footerlabels.serializers import ClinicSpecialitiesSerializer, MedicalFacilitiesSerializer, \
-    MedicalUnityTypesSerializer, CollaboratorDoctorSerializer
+    MedicalUnityTypesSerializer, CollaboratorDoctorSerializer, AcademicDegreeSerializer, MedicalSkillsSerializer, \
+    SpecialitySerializer
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -126,7 +127,13 @@ class UserUpdateUserProfileSerializer(serializers.ModelSerializer):
 
 class DoctorProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Doctor
+        model = CollaboratorDoctor
+        fields = '__all__'
+
+
+class ReviewDoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DoctorReview
         fields = '__all__'
 
 
@@ -165,4 +172,24 @@ class ClinicProfileSimpleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Clinic
+        fields = '__all__'
+
+
+class DoctorComplexProfileSerializer(serializers.ModelSerializer):
+    reviews = serializers.SerializerMethodField()
+    academic_degree = AcademicDegreeSerializer(many=True, read_only=True)
+    medical_skill = MedicalSkillsSerializer(many=True, read_only=True)
+    speciality = SpecialitySerializer(many=True, read_only=True)
+    collaborator_clinic = ClinicProfileSimpleSerializer(many=True, read_only=True)
+    collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
+    review_count = serializers.IntegerField(read_only=True)
+
+    def get_reviews(self, obj):
+        visible_reviews = obj.reviews.filter(is_visible=True)
+        serializer = ReviewDoctorSerializer(visible_reviews, many=True)
+        return serializer.data
+
+    class Meta:
+        model = CollaboratorDoctor
         fields = '__all__'

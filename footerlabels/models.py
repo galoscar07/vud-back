@@ -102,20 +102,8 @@ class MedicalFacilities(models.Model):
         return self.label
 
 
-class CollaboratorDoctor(models.Model):
-    profile_picture = models.ImageField(upload_to=upload_path_collaborator_doctor, blank=True, null=True)
-    doctor_name = models.CharField(max_length=255, blank=True, null=True)
-    academic_degree = models.ManyToManyField(AcademicDegree)
-    speciality = models.ManyToManyField(Speciality)
-    medical_skill = models.ManyToManyField(MedicalSkills)
-    link = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'Doctor Colaborator Clinica'
-        verbose_name_plural = 'Doctori Colaboratori Clinici'
-
-    def __str__(self):
-        return f'Nume doctor: {self.doctor_name}, Id: {self.id}'
+def upload_path_doctor(instance, filename):
+    return '/'.join(['images/doctor', str(instance.id), filename])
 
 
 class Newsletter(models.Model):

@@ -6,8 +6,9 @@ from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from authentication.models import Clinic, ClinicReview
-from authentication.serializers import ClinicProfileSerializer, ReviewSerializer, ClinicProfileSimpleSerializer
+from authentication.models import Clinic, ClinicReview, CollaboratorDoctor
+from authentication.serializers import ClinicProfileSerializer, ReviewSerializer, ClinicProfileSimpleSerializer, \
+    DoctorComplexProfileSerializer, ReviewDoctorSerializer
 from footerlabels.models import Footerlabels, MedicalUnityTypes, AcademicDegree, Speciality, MedicalSkills, \
     ClinicSpecialities, MedicalFacilities, Newsletter, BannerCards, AddSense, BlogPost, Tag
 from footerlabels.serializers import FooterlabelsSerializer, MedicalUnityTypesSerializer, AcademicDegreeSerializer, \
@@ -208,6 +209,66 @@ class ClinicDetailAPIView(RetrieveAPIView):
         ).filter(is_visible=True)
     serializer_class = ClinicProfileSerializer
     lookup_field = 'id'
+
+
+class DoctorPagination(pagination.PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+
+
+class DoctorList(generics.ListAPIView):
+    serializer_class = DoctorComplexProfileSerializer
+    queryset = CollaboratorDoctor.objects.annotate(
+            average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
+            review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
+        ).filter(is_visible=True)
+    pagination_class = ClinicPagination
+
+    def get_queryset(self):
+        queryset = self.queryset
+
+        # Filtering by doctor name
+        name = self.request.query_params.get('name', None)
+        if name is not None:
+            queryset = CollaboratorDoctor.objects.filter(first_name__icontains=name)
+
+        # TODO add methods to query
+
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return response
+
+
+class DoctorDetailAPIView(RetrieveAPIView):
+    queryset = CollaboratorDoctor.objects.annotate(
+            average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
+            review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
+        ).filter(is_visible=True)
+    serializer_class = DoctorComplexProfileSerializer
+    lookup_field = 'id'
+
+
+class ReviewDoctorCreate(APIView):
+    def post(self, request):
+        doctor_id = request.query_params.get('doctor_id', None)
+        # Get the clinic instance
+        try:
+            doctor = CollaboratorDoctor.objects.get(id=doctor_id)
+        except CollaboratorDoctor.DoesNotExist:
+            return Response({'error': 'Doctor not found.'}, status=404)
+
+        copy = request.data
+        copy["doctor"] = doctor.id
+        # Create a new Review object
+        serializer = ReviewDoctorSerializer(data=copy)
+
+        if serializer.is_valid():
+            serializer.save(doctor=doctor)
+            return Response(serializer.data, status=201)
+        else:
+            return Response(serializer.errors, status=400)
 
 
 class ReviewCreate(APIView):

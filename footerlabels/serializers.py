@@ -1,6 +1,8 @@
 from rest_framework import serializers
+
+from authentication.models import CollaboratorDoctor
 from footerlabels.models import Footerlabels, MedicalUnityTypes, AcademicDegree, Speciality, MedicalSkills, \
-    ClinicSpecialities, MedicalFacilities, CollaboratorDoctor, BannerCards, AddSense, Tag, BlogPost
+    ClinicSpecialities, MedicalFacilities, BannerCards, AddSense, Tag, BlogPost
 
 
 class FooterlabelsSerializer(serializers.ModelSerializer):

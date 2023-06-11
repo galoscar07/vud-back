@@ -3,7 +3,8 @@ from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, Permi
 from phonenumber_field.modelfields import PhoneNumberField
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, CollaboratorDoctor
+from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, \
+    MedicalSkills, Speciality, AcademicDegree
 
 
 class UserManager(BaseUserManager):
@@ -122,8 +123,9 @@ class Clinic(models.Model):
     whatsapp = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(null=True, blank=True)
 
-    # Doctor Collaborator
-    collaborator_doctor = models.ManyToManyField(CollaboratorDoctor, blank=True)
+    # Collab
+    collaborator_doctor = models.ManyToManyField('CollaboratorDoctor', blank=True)
+    collab_clinic = models.ManyToManyField('self', blank=True)
 
     # Clinic Speciality
     clinic_specialities = models.ManyToManyField(ClinicSpecialities, blank=True)
@@ -148,6 +150,70 @@ class Clinic(models.Model):
         return f'Clinica: {self.company}, Id Clinica: {self.id}'
 
 
+def upload_path_collaborator_doctor(instance, filename):
+    return '/'.join(['images/collaborator_doctor', str(instance.id), str(instance.doctor_name), filename])
+
+
+class CollaboratorDoctor(models.Model):
+    user = models.OneToOneField(User, related_name='doctor_profile', on_delete=models.CASCADE)
+
+    profile_picture = models.ImageField(upload_to=upload_path_collaborator_doctor, blank=True, null=True)
+    doctor_name = models.CharField(max_length=255, blank=True, null=True)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    primary_phone = models.CharField(max_length=255, blank=True, null=True)
+    primary_email = models.EmailField(blank=True)
+    website = models.CharField(max_length=255, blank=True, null=True)
+    website_facebook = models.CharField(max_length=255, blank=True, null=True)
+    website_google = models.CharField(max_length=255, blank=True, null=True)
+    website_linkedin = models.CharField(max_length=255, blank=True, null=True)
+    website_youtube = models.CharField(max_length=255, blank=True, null=True)
+    whatsapp = models.CharField(max_length=255, blank=True, null=True)
+
+    # Description
+    description = models.TextField(null=True, blank=True)
+
+    # Specialities
+    academic_degree = models.ManyToManyField(AcademicDegree, null=True, blank=True)
+    speciality = models.ManyToManyField(Speciality, null=True, blank=True)
+    medical_skill = models.ManyToManyField(MedicalSkills, null=True, blank=True)
+
+    # Collab
+    collaborator_doctor = models.ManyToManyField('self', symmetrical=False, blank=True)
+    collaborator_clinic = models.ManyToManyField(Clinic, blank=True)
+
+    # Step
+    step = models.CharField(max_length=2, default=0, blank=False)
+
+    # Is visible
+    is_visible = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Doctor'
+        verbose_name_plural = 'Doctori'
+
+    def __str__(self):
+        return f'Nume doctor: {self.doctor_name}, Id: {self.id}'
+
+
+class DoctorReview(models.Model):
+    doctor = models.ForeignKey(CollaboratorDoctor, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.PositiveIntegerField()
+    comment = models.TextField(blank=True)
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_visible = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Is_visible:{self.is_visible}, Doctor Name {self.doctor.first_name} {self.doctor.last_name}, Name: {self.name}, Comment: {self.comment}'
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Review Doctor'
+        verbose_name_plural = 'Reviews Doctori'
+
+
 class ClinicReview(models.Model):
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='reviews')
     rating = models.PositiveIntegerField()
@@ -162,17 +228,9 @@ class ClinicReview(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        verbose_name = 'Review Clinica'
+        verbose_name_plural = 'Reviews Clinici'
 
-
-class Doctor(models.Model):
-    user = models.OneToOneField(User, related_name='doctor_profile', on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name = 'Doctor'
-        verbose_name_plural = 'Doctori'
-
-    def __str__(self):
-        return f'Id utilizator: {self.user.id}, nume: {self.user.first_name} {self.user.last_name}'
 
 def upload_path_clinic_office(instance, filename):
     return '/'.join(['files/documents', str(instance.id), filename])
@@ -204,4 +262,17 @@ class RequestToRedeemClinic(models.Model):
         verbose_name = 'Revendica Clinica'
         verbose_name_plural = 'Revendica Clinici'
 
+
+class RequestToRedeemDoctor(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    doctor_to_redeem = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20)
+    message = models.TextField()
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name} - {self.company_role}"
+
+    class Meta:
+        verbose_name = 'Revendica Doctor'
+        verbose_name_plural = 'Revendica Doctori'
 

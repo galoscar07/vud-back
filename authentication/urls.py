@@ -1,9 +1,10 @@
 from django.urls import path
 
-from footerlabels.views import ClinicList, TopClinicsAPIView, ClinicDetailAPIView, ReviewCreate
+from footerlabels.views import ClinicList, TopClinicsAPIView, ClinicDetailAPIView, ReviewCreate, DoctorList, \
+    DoctorDetailAPIView, ReviewDoctorCreate
 from .views import RegisterView, LoginAPIView, VerifyEmail, PasswordTokenCheckAPIView, RequestPasswordResetAPIView, \
     SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet, UpdateAdminData, UpdateClinicTypeData, \
-    UpdateClinicProfileView, DeleteUserView, redeem_clinic_request
+    UpdateClinicProfileView, DeleteUserView, redeem_clinic_request, UpdateDoctorProfileView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -35,6 +36,9 @@ urlpatterns = [
     # Date administrator - page - clinica
     path('update-admin-data/', UpdateAdminData.as_view(), name='update-admin-data'),
 
+    # Update doctor info
+    path('update-doctor-profile/', UpdateDoctorProfileView.as_view(), name='update-doctor-profile'),
+
     # Date administrator - page - clinica
     path('update-clinic-type-data/', UpdateClinicTypeData.as_view(), name='update-admin-data'),
     path('update-clinic-profile/', UpdateClinicProfileView.as_view(), name='update-clinic-profile'),
@@ -45,5 +49,9 @@ urlpatterns = [
     path('get-clinics/', ClinicList.as_view(), name='get-clinics-filters'),
     path('get-top-clinics/', TopClinicsAPIView.as_view(), name='get-top-clinics'),
     path('clinics/<int:id>/', ClinicDetailAPIView.as_view(), name='get-clinic-by-id'),
-    path('clinic-review/', ReviewCreate.as_view(), name='create-clinic-review')
+    path('clinic-review/', ReviewCreate.as_view(), name='create-clinic-review'),
+
+    path('get-doctors/', DoctorList.as_view(), name='get-doctors-filters'),
+    path('doctors/<int:id>/', DoctorDetailAPIView.as_view(), name='get-doctor-by-id'),
+    path('doctor-review/', ReviewDoctorCreate.as_view(), name='create-doctor-review')
 ]
