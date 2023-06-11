@@ -25,7 +25,7 @@ EMAIL_TEMPLATES = {
                     <a href="$link" style="padding: 10px; width: 300px; background-color: #17616C; color: white;"> ACCES CONT</a>
                     <p>sau să copiați linkul de acces de mai jos și să-l accesați din bara de adrese: $link</p>
                     <p>Echipa,</p>
-                    <p style="color: #17616C;">Vreauundoctor.ro</p>
+                    <p style="color: #17616C;">Vreaudoctor.ro</p>
                 </div>
             </body>
         </html>
@@ -35,7 +35,7 @@ EMAIL_TEMPLATES = {
         <body>
             <div style="margin-top: 40px; width: 100%; height: 200px; background-color: #1BB583; display: flex; flex-direction: row; justify-content: center; align-items: center; color: white;">
                 <img src='cid:myimageid' width="160" height="160" >
-                <h1 style="color: #FFFFFF">Cont înregistrat cu succes.</h1>
+                <h1 style="color: #FFFFFF">Reseteaza parola.</h1>
             </div>
             <div style="margin-top: 30px;">
                 <p>Primiți acest email deoarce ați solicitat că doriți schimbarea parolei contului dumneavoastră.</p>
@@ -43,11 +43,98 @@ EMAIL_TEMPLATES = {
                 <a href="$link" style="padding: 10px; width: 300px; background-color: #17616C; color: white;">Schimbare parolă</a>
                 <p>sau să copiați linkul de acces de mai jos și să-l accesați din bara de adrese: $link</p>
                 <p>Echipa,</p>
-                <p style="color: #17616C;">Vreauundoctor.ro</p>
+                <p style="color: #17616C;">Vreaudoctor.ro</p>
             </div>
         </body>
     </html>
-''')
+    '''),
+    'thankyou': Template('''
+    <html>
+        <body>
+            <div style="margin-top: 40px; width: 100%; height: 200px; background-color: #1BB583; display: flex; flex-direction: row; justify-content: center; align-items: center; color: white;">
+                <img src='cid:myimageid' width="160" height="160" >
+                <h1 style="color: #FFFFFF">Vă mulțumim pentru înscrierea în comunitatea Vreaudoctor</h1>
+            </div>
+            <div style="margin-top: 30px;">
+                <p>Înainte de a putea accesa contul dumneavoastră, acesta trebuie aprobat de către administratorii Vreaudoctor.ro</p>
+                <p>Vă vom trimite un email cu un link de acces după ce contul a fost aprobat.</p>
+                <p>Echipa,</p>
+                <p style="color: #17616C;">Vreaudoctor.ro</p>
+            </div>
+        </body>
+    </html>
+    '''),
+    'account-approved': Template('''
+    <html>
+        <body>
+            <div style="margin-top: 40px; width: 100%; height: 200px; background-color: #1BB583; display: flex; flex-direction: row; justify-content: center; align-items: center; color: white;">
+                <img src='cid:myimageid' width="160" height="160" >
+                <h1 style="color: #FFFFFF">Cont aprobat Vreaudoctor.ro</h1>
+            </div>
+            <div style="margin-top: 30px;">
+                <p>Suntem bucuroși să îți confirmăm aprobarea contului tău pe vreaudoctor.ro. </p>
+                <p>Ai acum acces la toate funcționalitățile platformei și poți începe să îți promovezi serviciile medicale. Îți mulțumim că ai ales VreauDoctor.ro!</p>
+                <a href="https://www.vreaudoctor.ro/login" style="padding: 10px; width: 300px; background-color: #17616C; color: white;">Accesează cont</a>
+                <p>sau să copiați linkul de acces de mai jos și să-l accesați din bara de adrese: https://www.vreaudoctor.ro/login</p>
+                <p>Echipa,</p>
+                <p style="color: #17616C;">Vreaudoctor.ro</p>
+            </div>
+        </body>
+    </html>
+    '''),
+    'account-denied': Template('''
+    <html>
+        <body>
+            <div style="margin-top: 40px; width: 100%; height: 200px; background-color: #1BB583; display: flex; flex-direction: row; justify-content: center; align-items: center; color: white;">
+                <img src='cid:myimageid' width="160" height="160" >
+                <h1 style="color: #FFFFFF">Revendicare cont refuzata</h1>
+            </div>
+            <div style="margin-top: 30px;">
+                <p>Draga $name</p>
+                <p>Iti multumim ca ai incercat sa revendici contul paginii pe vreaudoctor.ro.</p>
+                <p>Din pacate, revendicarea ta nu a fost acceptata din urmatoarele motive:</p>
+                <ul>
+                    <li>Documentele justificative pe care le-ai furnizat nu au putut fi acceptate, deoarece nu indeplineau toate cerintele noastre.</li>
+                    <li>Informatiile furnizate nu au putut fi verificate suficient pentru a demonstra ca esti reprezentantul legal.</li>
+                </ul>
+                <p>Iti recomandam sa verifici informatiile furnizate si sa te asiguri ca documentele justificative sunt complete si conforme cu cerintele noastre. Dupa aceea, poti sa incerci sa revendici contul din nou.</p>
+                <p>In cazul in care ai intrebari suplimentare, te rugam sa ne contactezi prin email la adresa support@vreauundoctor.ro </p>
+                <p>Cu respect,</p>
+                <p style="color: #17616C;">Echipa VreauDoctor.ro</p>
+            </div>
+        </body>
+    </html>
+    '''),
+    'invite-part-of-team': Template('''
+    <html>
+        <body>
+            <div style="margin-top: 40px; width: 100%; height: 200px; background-color: #1BB583; display: flex; flex-direction: row; justify-content: center; align-items: center; color: white;">
+                <img src='cid:myimageid' width="160" height="160" >
+                <h1 style="color: #FFFFFF">Ai primit invitație pe Vreaudoctor.ro</h1>
+            </div>
+            <div style="margin-top: 30px;">
+                <p>$nume te-a adăugat $typeAdded pe pagina de profil a $type de pe vreaudoctor.ro.</p>
+                <p>$toSent creează-ți și tu cont, alătură-te comunității vreaudoctor.ro și ajută pacineții să te găsească mai ușor.</p>
+                <a href="https://www.vreaudoctor.ro/register" style="padding: 10px; width: 300px; background-color: #17616C; color: white;">Creează cont</a>
+                <p>Echipa,</p>
+                <p style="color: #17616C;">Vreaudoctor.ro</p>
+            </div>
+        </body>
+    </html>
+    '''),
+    'invite-part-of-team-custom': Template('''
+    <html>
+        <body>
+            <div style="margin-top: 40px; width: 100%; height: 200px; background-color: #1BB583; display: flex; flex-direction: row; justify-content: center; align-items: center; color: white;">
+                <img src='cid:myimageid' width="160" height="160" >
+                <h1 style="color: #FFFFFF">Ai primit invitație pe Vreaudoctor.ro</h1>
+            </div>
+            <div style="margin-top: 30px;">
+               <p>$message</p>
+            </div>
+        </body>
+    </html>
+    '''),
 }
 
 
@@ -85,24 +172,78 @@ def send_email(message):
 class Util:
     @staticmethod
     def send_email(data, email_type):
+        # Verify email to activate account
         if email_type == 'verify-email':
             template_processed = EMAIL_TEMPLATES['register'].substitute(link=data['url'])
             message = {
                 "from_email": SENDER,
                 "from_name": "Vreau Doctor",
                 "to_email": data['email'],
-                "subject": "Verificati email-ul pentru a finaliza crearea de cont",
+                "subject": "Contul dumneavoastră a fost creat.",
                 "template": template_processed,
             }
             send_email(message=message)
 
+        # Reset password token
         if email_type == 'reset-password':
             template_processed = EMAIL_TEMPLATES['forget_password'].substitute(link=data['url'])
             message = {
                 "from_email": SENDER,
                 "from_name": "Vreau Doctor",
                 "to_email": data['email'],
-                "subject": "Reseteaza parola pentru contul tau de Vreau Un Doctor",
+                "subject": "Reseteaza parola pentru contul tau de Vreaudoctor",
                 "template": template_processed,
             }
             send_email(message=message)
+
+        # Thank you for sign up email
+        if email_type == 'thank-you-sign-up':
+            template_processed = EMAIL_TEMPLATES['thankyou'].substitute()
+            message = {
+                "from_email": SENDER,
+                "from_name": "Vreau Doctor",
+                "to_email": data['email'],
+                "subject": "Vă mulțumim pentru înscrierea în comunitatea Vreaudoctor",
+                "template": template_processed,
+            }
+            send_email(message=message)
+
+        # Your account have been approved
+        if email_type == 'account-approved':
+            template_processed = EMAIL_TEMPLATES['account-approved'].substitute()
+            message = {
+                "from_email": SENDER,
+                "from_name": "Vreau Doctor",
+                "to_email": data['email'],
+                "subject": "Cont aprobat Vreaudoctor.ro",
+                "template": template_processed,
+            }
+            send_email(message=message)
+
+        # Your account have been denied
+        if email_type == 'account-denied':
+            template_processed = EMAIL_TEMPLATES['account-denied'].substitute(name=data['name'])
+            message = {
+                "from_email": SENDER,
+                "from_name": "Vreau Doctor",
+                "to_email": data['email'],
+                "subject": "Revendicarea contului pe vreaudoctor.ro",
+                "template": template_processed,
+            }
+            send_email(message=message)
+
+        # You received an invitation to be a part of the team
+        if email_type == 'invite-part-of-team':
+            if data['custom']:
+                template_processed = EMAIL_TEMPLATES['invite-part-of-team-custom'].substitute(message=data['message'])
+            else:
+                template_processed = EMAIL_TEMPLATES['invite-part-of-team'].substitute(nume=data['name'], typeAdded=data['typeAdded'], type=data['type'])
+            message = {
+                "from_email": SENDER,
+                "from_name": "Vreau Doctor",
+                "to_email": data['email'],
+                "subject": "Vă mulțumim pentru înscrierea în comunitatea Vreaudoctor",
+                "template": template_processed,
+            }
+            send_email(message=message)
+

@@ -24,7 +24,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, AcademicDegree, Speciality
-from .models import User, Clinic, Document, RequestToRedeemClinic, CollaboratorDoctor
+from .models import User, Clinic, Document, RequestToRedeemClinic, CollaboratorDoctor, RequestToRedeemDoctor
 from .utils import Util
 
 
@@ -252,6 +252,7 @@ class UpdateAdminData(APIView):
             user.phone_number_optional = request.data.get('phone_number_optional', '')
             user.contact_email_optional = request.data.get('contact_email_optional', '')
             # Save clinic data
+            # TODO Check file saving
             file1 = request.data.get('file1', None)
             file2 = request.data.get('file2', None)
             try:
@@ -344,9 +345,8 @@ class UpdateClinicProfileView(APIView):
         if clinic_facilities:
             clinic_facilities = json.loads(clinic_facilities)
 
-        doctors = request.data.get('doctor', None)
-        if doctors:
-            doctors = json.loads(doctors)
+        doctors = request.data.get('doctor', "").split("|")
+        clinics = request.data.get('clinic', "").split("|")
 
         clinic_profile = user.clinic_profile
 
@@ -388,26 +388,28 @@ class UpdateClinicProfileView(APIView):
         if len(doctors) > 200:
             return Response({"error": "Nu poti adaug mai mult de 200 de doctori"}, status=400)
 
-        # index = 0
-        # for doc in doctors:
-        #     photo_key = "|".join(doc['name'].split()) + "_doc_" + str(index)
-        #     photo = request.data.get(photo_key, None)
-        #     elem = CollaboratorDoctor.objects.create(
-        #         doctor_name=doc['name'],
-        #         link=doc['link'],
-        #         profile_picture=photo
-        #     )
-        #     for mut in doc['academic_degree']:
-        #         mm = AcademicDegree.objects.get(id=mut)
-        #         elem.academic_degree.add(mm)
-        #     for mut in doc['speciality']:
-        #         mm = Speciality.objects.get(id=mut)
-        #         elem.speciality.add(mm)
-        #     for mut in doc['competences']:
-        #         mm = MedicalSkills.objects.get(id=mut)
-        #         elem.medical_skill.add(mm)
-        #     elem.save()
-        #     clinic_profile.collaborator_doctor.add(elem)
+        if len(clinics) > 200:
+            return Response({"error": "Nu poti adaug mai mult de 200 de clinici"}, status=400)
+
+        for doc in doctors:
+            try:
+                doctor = CollaboratorDoctor.objects.get(id=doc)
+                clinic_profile.collaborator_doctor.add(doctor)
+            except Exception:
+                pass
+
+        for clinic in clinics:
+            try:
+                clin = Clinic.objects.get(id=clinic)
+                clinic_profile.collaborator_doctor.add(clin)
+            except Exception:
+                pass
+
+        # Send email thanks sing up
+        data = {
+            'email': user.email
+        }
+        Util.send_email(data=data, email_type='thank-you-sign-up')
 
         clinic_profile.save()
         return Response({"success": "Success"}, status=200)
@@ -433,6 +435,9 @@ class UpdateDoctorProfileView(APIView):
         website_youtube = request.data.get('website_youtube', None)
         whatsapp = request.data.get('whatsapp', None)
         description = request.data.get('description', None)
+
+        doctors = request.data.get('doctor', "").split("|")
+        clinics = request.data.get('clinic', "").split("|")
 
         academic_degree = request.data.get('academic_degree', None)
         if academic_degree:
@@ -482,6 +487,26 @@ class UpdateDoctorProfileView(APIView):
             except Speciality.DoesNotExist:
                 pass
 
+        if len(doctors) > 200:
+            return Response({"error": "Nu poti adaug mai mult de 200 de doctori"}, status=400)
+
+        if len(clinics) > 200:
+            return Response({"error": "Nu poti adaug mai mult de 200 de clinici"}, status=400)
+
+        for doc in doctors:
+            try:
+                doctor = CollaboratorDoctor.objects.get(id=doc)
+                doctor_profile.collaborator_doctor.add(doctor)
+            except Exception:
+                pass
+
+        for clinic in clinics:
+            try:
+                clin = Clinic.objects.get(id=clinic)
+                doctor_profile.collaborator_clinic.add(clin)
+            except Exception:
+                pass
+
         file1 = request.data.get('file1', None)
         file2 = request.data.get('file2', None)
 
@@ -490,50 +515,74 @@ class UpdateDoctorProfileView(APIView):
         doc1.save()
         doc2.save()
 
-        # if len(doctors) > 200:
-        #     return Response({"error": "Nu poti adaug mai mult de 200 de doctori"}, status=400)
-
-        # index = 0
-        # for doc in doctors:
-        #     photo_key = "|".join(doc['name'].split()) + "_doc_" + str(index)
-        #     photo = request.data.get(photo_key, None)
-        #     elem = CollaboratorDoctor.objects.create(
-        #         doctor_name=doc['name'],
-        #         link=doc['link'],
-        #         profile_picture=photo
-        #     )
-        #     for mut in doc['academic_degree']:
-        #         mm = AcademicDegree.objects.get(id=mut)
-        #         elem.academic_degree.add(mm)
-        #     for mut in doc['speciality']:
-        #         mm = Speciality.objects.get(id=mut)
-        #         elem.speciality.add(mm)
-        #     for mut in doc['competences']:
-        #         mm = MedicalSkills.objects.get(id=mut)
-        #         elem.medical_skill.add(mm)
-        #     elem.save()
-        #     clinic_profile.collaborator_doctor.add(elem)
-
         doctor_profile.save()
+
+        data = {
+            'email': user.email
+        }
+        Util.send_email(data=data, email_type='thank-you-sign-up')
+
         return Response({"success": "Success"}, status=200)
 
 
 @api_view(['POST'])
 def invite_collaborator_doctor(request):
-    # TODO implement this
     user = request.user
     if not user:
         return Response({"error": "Error, user not logged"}, status=400)
-    pass
+
+    try:
+        to_sent = request.data.get('name', '')
+        email = request.data.get('email', '')
+        message = request.data.get('message', None)
+        from_sent = request.data.get('from_sent', '')
+        from_type = request.data.get('from_type', '')
+        type_added = 'medic colaborator'
+
+        data = {
+            'email': email,
+            'custom': True if message else False,
+            'message': message,
+            'nume': from_sent,
+            'typeAdded': type_added,
+            'type': from_type,
+            'toSent': to_sent,
+        }
+        Util.send_email(data=data, email_type='thank-you-sign-up')
+        return Response({"success": "Success"}, status=200)
+
+    except Exception:
+        return Response({"error": "Error"}, status=400)
 
 
 @api_view(['POST'])
 def invite_collaborator_clinic(request):
-    # TODO implement this
     user = request.user
     if not user:
         return Response({"error": "Error, user not logged"}, status=400)
-    pass
+
+    try:
+        to_sent = request.data.get('name', '')
+        email = request.data.get('email', '')
+        message = request.data.get('message', None)
+        from_sent = request.data.get('from_sent', '')
+        from_type = request.data.get('from_type', '')
+        type_added = 'clinica colaboratoare'
+
+        data = {
+            'email': email,
+            'custom': True if message else False,
+            'message': message,
+            'nume': from_sent,
+            'typeAdded': type_added,
+            'type': from_type,
+            'toSent': to_sent,
+        }
+        Util.send_email(data=data, email_type='thank-you-sign-up')
+        return Response({"success": "Success"}, status=200)
+
+    except Exception:
+        return Response({"error": "Error"}, status=400)
 
 
 @api_view(['POST'])
@@ -553,14 +602,20 @@ def redeem_clinic_request(request):
     password = ''.join(choices(string.ascii_letters + string.digits, k=12))
 
     # Create new user
-    user = User.objects.create_user(
-        username=email,
-        email=email,
-        password=password,
-    )
+    try:
+        user = User.objects.create_user(
+            username=email,
+            email=email,
+            password=password,
+        )
+        user.save()
+    except Exception:
+        return Response({'error': True})
 
     user.first_name = first_name
     user.last_name = last_name
+    user.email = email
+    user.save()
 
     # Create new request to sign up model
     RequestToRedeemClinic.objects.create(
@@ -571,7 +626,53 @@ def redeem_clinic_request(request):
         message=message,
     )
 
-    Document.objects.create(owner=user, file=file1)
-    Document.objects.create(owner=user, file=file2)
+    if file1:
+        Document.objects.create(owner=user, file=file1)
+    if file2:
+        Document.objects.create(owner=user, file=file2)
+
+    return Response({'success': True})
+
+
+@api_view(['POST'])
+def redeem_doctor_request(request):
+    # Get parameters from request
+    first_name = request.data.get('first_name', '')
+    last_name = request.data.get('last_name', '')
+    email = request.data.get('email', '')
+    phone = request.data.get('phone', '')
+    message = request.data.get('message', '')
+    doctor = request.data.get('doctor_id', '')
+    file1 = request.data.get('file1', None)
+    file2 = request.data.get('file2', None)
+
+    # Generate random password
+    password = ''.join(choices(string.ascii_letters + string.digits, k=12))
+
+    # Create new user
+    try:
+        user = User.objects.create_user(
+            username=email,
+            email=email,
+            password=password,
+        )
+    except Exception:
+        return Response({'error': True})
+
+    user.first_name = first_name
+    user.last_name = last_name
+
+    # Create new request to sign up model
+    RequestToRedeemDoctor.objects.create(
+        user=user,
+        phone=phone,
+        doctor_to_redeem=doctor,
+        message=message,
+    )
+
+    if file1:
+        Document.objects.create(owner=user, file=file1)
+    if file2:
+        Document.objects.create(owner=user, file=file2)
 
     return Response({'success': True})

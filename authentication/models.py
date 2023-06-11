@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
+from django.dispatch import receiver
 from phonenumber_field.modelfields import PhoneNumberField
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from authentication.utils import Util
 from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, \
     MedicalSkills, Speciality, AcademicDegree
 
@@ -92,28 +94,27 @@ class Clinic(models.Model):
     user = models.OneToOneField(User, related_name='clinic_profile', on_delete=models.CASCADE, blank=True, null=True)
 
     # Admin Data
-    role = models.CharField(max_length=255, blank=True)
-    company = models.CharField(max_length=255, blank=True)
-    company_role = models.CharField(max_length=255, blank=True)
-    town = models.CharField(max_length=255, blank=True)
-    county = models.CharField(max_length=255, blank=True)
-    street = models.CharField(max_length=255, blank=True)
-    number = models.CharField(max_length=255, blank=True)
+    company = models.CharField(max_length=255)
+    company_role = models.CharField(max_length=255)
+    town = models.CharField(max_length=255)
+    county = models.CharField(max_length=255)
+    street = models.CharField(max_length=255)
+    number = models.CharField(max_length=255)
 
     # Step will be the step in the auth in which the user is
     step = models.CharField(max_length=2, default=0, blank=False)
 
     # Clinics Data
     profile_picture = models.ImageField(upload_to=upload_path_clinic, blank=True, null=True)
-    clinic_name = models.CharField(max_length=255, blank=True, null=True)
-    clinic_street = models.CharField(max_length=255, blank=True, null=True)
-    clinic_number = models.CharField(max_length=255, blank=True, null=True)
-    clinic_town = models.CharField(max_length=255, blank=True, null=True)
-    clinic_county = models.CharField(max_length=255, blank=True, null=True)
+    clinic_name = models.CharField(max_length=255)
+    clinic_street = models.CharField(max_length=255)
+    clinic_number = models.CharField(max_length=255)
+    clinic_town = models.CharField(max_length=255)
+    clinic_county = models.CharField(max_length=255)
     clinic_other_details = models.CharField(max_length=255, blank=True, null=True)
-    primary_phone = models.CharField(max_length=255, blank=True, null=True)
+    primary_phone = models.CharField(max_length=255)
     secondary_phone = models.CharField(max_length=255, blank=True, null=True)
-    primary_email = models.EmailField(blank=True)
+    primary_email = models.EmailField()
     secondary_email = models.CharField(max_length=610, blank=True, null=True)
     website = models.CharField(max_length=255, blank=True, null=True)
     website_facebook = models.CharField(max_length=255, blank=True, null=True)
@@ -121,23 +122,23 @@ class Clinic(models.Model):
     website_linkedin = models.CharField(max_length=255, blank=True, null=True)
     website_youtube = models.CharField(max_length=255, blank=True, null=True)
     whatsapp = models.CharField(max_length=255, blank=True, null=True)
-    description = models.TextField(null=True, blank=True)
+    description = models.TextField(max_length=500)
 
     # Collab
     collaborator_doctor = models.ManyToManyField('CollaboratorDoctor', blank=True)
-    collab_clinic = models.ManyToManyField('self', blank=True)
+    collaborator_clinic = models.ManyToManyField('self', blank=True)
 
     # Clinic Speciality
-    clinic_specialities = models.ManyToManyField(ClinicSpecialities, blank=True)
+    clinic_specialities = models.ManyToManyField(ClinicSpecialities)
 
     # Unity Facilities
-    unity_facilities = models.ManyToManyField(MedicalFacilities, blank=True)
+    unity_facilities = models.ManyToManyField(MedicalFacilities)
 
     # Medical Unity Types
-    medical_unit_types = models.ManyToManyField(MedicalUnityTypes, blank=True)
+    medical_unit_types = models.ManyToManyField(MedicalUnityTypes)
 
     # Schedule
-    clinic_schedule = models.TextField(null=True, blank=True)
+    clinic_schedule = models.TextField()
 
     # Is visible
     is_visible = models.BooleanField(default=False)
@@ -147,22 +148,29 @@ class Clinic(models.Model):
         verbose_name_plural = 'Clinici'
 
     def __str__(self):
-        return f'Clinica: {self.company}, Id Clinica: {self.id}'
+        return f'Nume clinica: {self.clinic_name}, firma: {self.company} - {self.clinic_town}'
+
+
+@receiver(models.signals.post_save, sender=Clinic)
+def send_email_on_visibility_change(sender, instance, **kwargs):
+    if instance.is_visible and kwargs.get('created', False):
+        data = {'email': instance.user.email}
+        Util.send_email(data=data, email_type='account-approved')
 
 
 def upload_path_collaborator_doctor(instance, filename):
-    return '/'.join(['images/collaborator_doctor', str(instance.id), str(instance.doctor_name), filename])
+    return '/'.join(['images/collaborator_doctor', str(instance.id), str(instance.first_name), str(instance.last_name), filename])
 
 
 class CollaboratorDoctor(models.Model):
-    user = models.OneToOneField(User, related_name='doctor_profile', on_delete=models.CASCADE)
+    user = models.OneToOneField(User, related_name='doctor_profile', on_delete=models.CASCADE, blank=True, null=True)
 
     profile_picture = models.ImageField(upload_to=upload_path_collaborator_doctor, blank=True, null=True)
-    doctor_name = models.CharField(max_length=255, blank=True, null=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    primary_phone = models.CharField(max_length=255, blank=True, null=True)
-    primary_email = models.EmailField(blank=True)
+    primary_phone = models.CharField(max_length=255)
+    phone_vud = models.CharField(max_length=255)
+    primary_email = models.EmailField()
     website = models.CharField(max_length=255, blank=True, null=True)
     website_facebook = models.CharField(max_length=255, blank=True, null=True)
     website_google = models.CharField(max_length=255, blank=True, null=True)
@@ -171,12 +179,12 @@ class CollaboratorDoctor(models.Model):
     whatsapp = models.CharField(max_length=255, blank=True, null=True)
 
     # Description
-    description = models.TextField(null=True, blank=True)
+    description = models.TextField(max_length=500)
 
     # Specialities
-    academic_degree = models.ManyToManyField(AcademicDegree, null=True, blank=True)
-    speciality = models.ManyToManyField(Speciality, null=True, blank=True)
-    medical_skill = models.ManyToManyField(MedicalSkills, null=True, blank=True)
+    academic_degree = models.ManyToManyField(AcademicDegree)
+    speciality = models.ManyToManyField(Speciality)
+    medical_skill = models.ManyToManyField(MedicalSkills)
 
     # Collab
     collaborator_doctor = models.ManyToManyField('self', symmetrical=False, blank=True)
@@ -193,7 +201,18 @@ class CollaboratorDoctor(models.Model):
         verbose_name_plural = 'Doctori'
 
     def __str__(self):
-        return f'Nume doctor: {self.doctor_name}, Id: {self.id}'
+        try:
+            spec = self.speciality.all()[0].label
+        except Exception:
+            spec = 'Nu este selectata specialitate'
+        return f'{self.first_name} {self.last_name} - {spec}'
+
+
+@receiver(models.signals.post_save, sender=CollaboratorDoctor)
+def send_email_on_visibility_change(sender, instance, **kwargs):
+    if instance.is_visible and not kwargs.get('created', True):
+        data = {'email': instance.user.email}
+        Util.send_email(data=data, email_type='account-approved')
 
 
 class DoctorReview(models.Model):
@@ -206,7 +225,7 @@ class DoctorReview(models.Model):
     is_visible = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'Is_visible:{self.is_visible}, Doctor Name {self.doctor.first_name} {self.doctor.last_name}, Name: {self.name}, Comment: {self.comment}'
+        return f'{"Aprobat" if self.is_visible else "Neaprobat"}, Doctor {self.doctor.first_name} {self.doctor.last_name}, Nume: {self.name}, Comentariu: {self.comment}'
 
     class Meta:
         ordering = ['-created_at']
@@ -224,7 +243,7 @@ class ClinicReview(models.Model):
     is_visible = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'Is_visible:{self.is_visible}, Clinic Name {self.clinic.clinic_name}, Name: {self.name}, Comment: {self.comment}'
+        return f'{"Aprobat" if self.is_visible else "Neaprobat"}, Clinica {self.clinic.clinic_name}, Nume: {self.name}, Comentariu: {self.comment}'
 
     class Meta:
         ordering = ['-created_at']
@@ -245,7 +264,7 @@ class Document(models.Model):
         verbose_name_plural = 'Documente'
 
     def __str__(self):
-        return f'Document: {self.file}, detinator: {self.owner.id}'
+        return f'{self.owner.first_name} {self.owner.last_name} - {self.owner.email} - {self.id}'
 
 
 class RequestToRedeemClinic(models.Model):
@@ -254,13 +273,39 @@ class RequestToRedeemClinic(models.Model):
     phone = models.CharField(max_length=20)
     company_role = models.CharField(max_length=50)
     message = models.TextField()
+    ACCEPTED_CHOICES = (
+        ('default', 'Neselectat'),
+        ('acceptat', 'Acceptat'),
+        ('respins', 'Respins'),
+    )
+    accepted = models.CharField(max_length=10, choices=ACCEPTED_CHOICES, default='default')
 
     def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name} - {self.company_role}"
+        return f"Status: {self.accepted}, {self.user.first_name} {self.user.last_name} - {self.company_role}"
+
+    def save(self, *args, **kwargs):
+        if self.accepted == 'acceptat':
+            try:
+                clinic = Clinic.objects.get(id=self.clinic_to_redeem)
+            except Exception:
+                clinic = None
+
+            if clinic:
+                clinic.user = self.user
+                clinic.save()
+
+                data = {'email': self.user.email}
+                Util.send_email(data=data, email_type='account-approved')
+
+        elif self.accepted == 'respins':
+            data = {'email': self.user.email, 'name': self.user.first_name + ' ' + self.user.last_name}
+            Util.send_email(data=data, email_type='account-denied')
+
+        super().save(*args, **kwargs)
 
     class Meta:
-        verbose_name = 'Revendica Clinica'
-        verbose_name_plural = 'Revendica Clinici'
+        verbose_name = 'Revendicare Clinica'
+        verbose_name_plural = 'Revendicari Clinici'
 
 
 class RequestToRedeemDoctor(models.Model):
@@ -268,11 +313,37 @@ class RequestToRedeemDoctor(models.Model):
     doctor_to_redeem = models.CharField(max_length=20)
     phone = models.CharField(max_length=20)
     message = models.TextField()
+    ACCEPTED_CHOICES = (
+        ('default', 'Neselectat'),
+        ('acceptat', 'Acceptat'),
+        ('respins', 'Respins'),
+    )
+    accepted = models.CharField(max_length=10, choices=ACCEPTED_CHOICES, default='default')
+
+    def save(self, *args, **kwargs):
+        if self.accepted == 'acceptat':
+            try:
+                doctor = CollaboratorDoctor.objects.get(id=self.doctor_to_redeem)
+            except Exception:
+                doctor = None
+
+            if doctor:
+                doctor.user = self.user
+                doctor.save()
+
+                data = {'email': self.user.email}
+                Util.send_email(data=data, email_type='account-approved')
+
+        elif self.accepted == 'respins':
+            data = {'email': self.user.email, 'name': self.user.first_name + ' ' + self.user.last_name}
+            Util.send_email(data=data, email_type='account-denied')
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name} - {self.company_role}"
+        return f"Status: {self.accepted}, {self.user.first_name} {self.user.last_name}"
 
     class Meta:
-        verbose_name = 'Revendica Doctor'
-        verbose_name_plural = 'Revendica Doctori'
+        verbose_name = 'Revendicare Doctor'
+        verbose_name_plural = 'Revendicari Doctori'
 

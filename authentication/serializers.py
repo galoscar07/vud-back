@@ -143,25 +143,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ClinicProfileSerializer(serializers.ModelSerializer):
-    reviews = serializers.SerializerMethodField()
-    clinic_specialities = ClinicSpecialitiesSerializer(many=True, read_only=True)
-    unity_facilities = MedicalFacilitiesSerializer(many=True, read_only=True)
-    medical_unit_types = MedicalUnityTypesSerializer(many=True, read_only=True)
-    collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
-    average_rating = serializers.FloatField(read_only=True)
-    review_count = serializers.IntegerField(read_only=True)
-
-    def get_reviews(self, obj):
-        visible_reviews = obj.reviews.filter(is_visible=True)
-        serializer = ReviewSerializer(visible_reviews, many=True)
-        return serializer.data
-
-    class Meta:
-        model = Clinic
-        fields = '__all__'
-
-
 class ClinicProfileSimpleSerializer(serializers.ModelSerializer):
     clinic_specialities = ClinicSpecialitiesSerializer(many=True, read_only=True)
     unity_facilities = MedicalFacilitiesSerializer(many=True, read_only=True)
@@ -169,6 +150,26 @@ class ClinicProfileSimpleSerializer(serializers.ModelSerializer):
     collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
     average_rating = serializers.FloatField(read_only=True)
     review_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Clinic
+        fields = '__all__'
+
+
+class ClinicProfileSerializer(serializers.ModelSerializer):
+    reviews = serializers.SerializerMethodField()
+    clinic_specialities = ClinicSpecialitiesSerializer(many=True, read_only=True)
+    unity_facilities = MedicalFacilitiesSerializer(many=True, read_only=True)
+    medical_unit_types = MedicalUnityTypesSerializer(many=True, read_only=True)
+    collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
+    collaborator_clinic = ClinicProfileSimpleSerializer(many=True, read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
+    review_count = serializers.IntegerField(read_only=True)
+
+    def get_reviews(self, obj):
+        visible_reviews = obj.reviews.filter(is_visible=True)
+        serializer = ReviewSerializer(visible_reviews, many=True)
+        return serializer.data
 
     class Meta:
         model = Clinic

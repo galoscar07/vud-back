@@ -4,7 +4,7 @@ from footerlabels.views import ClinicList, TopClinicsAPIView, ClinicDetailAPIVie
     DoctorDetailAPIView, ReviewDoctorCreate
 from .views import RegisterView, LoginAPIView, VerifyEmail, PasswordTokenCheckAPIView, RequestPasswordResetAPIView, \
     SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet, UpdateAdminData, UpdateClinicTypeData, \
-    UpdateClinicProfileView, DeleteUserView, redeem_clinic_request, UpdateDoctorProfileView
+    UpdateClinicProfileView, DeleteUserView, redeem_clinic_request, UpdateDoctorProfileView, redeem_doctor_request
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -45,6 +45,7 @@ urlpatterns = [
 
     # Redeem clinic
     path('revendica-clinica/', redeem_clinic_request, name='redeem_clinic'),
+    path('revendica-doctor/', redeem_doctor_request, name='redeem_doctor'),
 
     path('get-clinics/', ClinicList.as_view(), name='get-clinics-filters'),
     path('get-top-clinics/', TopClinicsAPIView.as_view(), name='get-top-clinics'),

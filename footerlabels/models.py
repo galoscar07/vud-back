@@ -6,7 +6,7 @@ def upload_path_clinic_office(instance, filename):
 
 
 def upload_path_collaborator_doctor(instance, filename):
-    return '/'.join(['images/collaborator_doctor', str(instance.id), str(instance.doctor_name), filename])
+    return '/'.join(['images/collaborator_doctor', str(instance.id), str(instance.first_name), str(instance.last_name), filename])
 
 
 def upload_path_banner_image(instance, filename):
@@ -50,8 +50,8 @@ class AcademicDegree(models.Model):
     label = models.CharField(max_length=60)
 
     class Meta:
-        verbose_name = 'Grad Academic'
-        verbose_name_plural = 'Grade Academice'
+        verbose_name = 'Grad Medical'
+        verbose_name_plural = 'Grade Medicale'
 
     def __str__(self):
         return self.label
@@ -140,8 +140,8 @@ class AddSense(models.Model):
     size = models.CharField(max_length=255, blank=False)
 
     class Meta:
-        verbose_name = 'Add Card'
-        verbose_name_plural = 'Add-uri Cards'
+        verbose_name = 'Add Sense'
+        verbose_name_plural = 'Add-uri Sense'
 
     def __str__(self):
         return f'Titlu: {self.alt}, id: {self.id}'
@@ -173,7 +173,7 @@ class Tag(models.Model):
 class BlogPost(models.Model):
     title = models.CharField(max_length=255)
     date_created = models.DateTimeField(auto_now_add=True)
-    tags = models.ManyToManyField('Tag', related_name='blogposts', blank=True, null=True)
+    tags = models.ManyToManyField('Tag', related_name='blogposts', blank=True)
     banner_image = models.ImageField(upload_to=upload_path_blog_banner_image, blank=True, null=True)
     headline_1 = models.CharField(max_length=255)
     content_1 = models.TextField()

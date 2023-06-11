@@ -227,12 +227,27 @@ class DoctorList(generics.ListAPIView):
     def get_queryset(self):
         queryset = self.queryset
 
-        # Filtering by doctor name
         name = self.request.query_params.get('name', None)
         if name is not None:
-            queryset = CollaboratorDoctor.objects.filter(first_name__icontains=name)
+            doctor_spec = Speciality.objects.filter(label__iexact=name)
+            if len(doctor_spec) > 0:
+                specialities = []
+                for e in doctor_spec:
+                    specialities.append(e.id)
+                queryset = queryset.filter(speciality__id__in=specialities)
+                return queryset
 
-        # TODO add methods to query
+            queryset = queryset.filter(Q(first_name__icontains=name) | Q(last_name__icontains=name))
+
+        academic_degree = self.request.query_params.get('academic_degree', [])
+        if academic_degree:
+            town = academic_degree.split("|")
+            queryset = queryset.filter(academic_degree__id__in=town)
+
+        medical_skill = self.request.query_params.get('medical_skill', [])
+        if medical_skill:
+            specialities = medical_skill.split("|")
+            queryset = queryset.filter(medical_skill__id__in=specialities)
 
         return queryset
 
