@@ -262,3 +262,14 @@ class Util:
             }
             send_email(message=message)
 
+        if email_type == 'notification-invited-collab-doctor-to-clinic':
+            template_processed = EMAIL_TEMPLATES['notification-invited-collab-doctor-to-clinic'].substitute(to_name=data['to_name'], from_name=data['from_name'], profile_link=data['profile_link'])
+            message = {
+                "from_email": SENDER,
+                "from_name": "Vreau Doctor",
+                "to_email": data['email'],
+                "subject": "Vă mulțumim pentru înscrierea în comunitatea Vreaudoctor",
+                "template": template_processed,
+            }
+            send_email(message=message)
+

@@ -439,7 +439,6 @@ class UpdateDoctorProfileView(APIView):
 
         doctors = request.data.get('doctor', "").split("|")
         clinics = request.data.get('clinic', "").split("|")
-        import pdb;pdb.set_trace()
 
         academic_degree = request.data.get('academic_degree', None)
         if academic_degree:
@@ -458,6 +457,7 @@ class UpdateDoctorProfileView(APIView):
         doctor_profile.first_name = first_name
         doctor_profile.last_name = last_name
         doctor_profile.primary_phone = primary_phone
+        doctor_profile.phone_vud = primary_phone_vud
         doctor_profile.primary_email = primary_email
         doctor_profile.website = website
         doctor_profile.website_facebook = website_facebook
@@ -499,6 +499,13 @@ class UpdateDoctorProfileView(APIView):
             try:
                 doctor = CollaboratorDoctor.objects.get(id=doc)
                 doctor_profile.collaborator_doctor.add(doctor)
+                data = {
+                    'email': doctor_profile.primary_email,
+                    'to_name': doctor_profile.first_name,
+                    'from_nane': doctor_profile.first_name + ' ' + doctor_profile.last_name,
+                    'profile_link': 'www.vreaudoctor.ro/doctor-page/?id='+doctor_profile.id
+                }
+                Util.send_email(data=data, email_type='notification-invited-collab-doctor-to-clinic')
             except Exception:
                 pass
 
@@ -506,15 +513,13 @@ class UpdateDoctorProfileView(APIView):
             try:
                 clin = Clinic.objects.get(id=clinic)
                 doctor_profile.collaborator_clinic.add(clin)
-
-                # TODO finish this also for doctors collab and for clinic data clinic and doctor colabs
                 data = {
                     'email': clin.primary_email,
                     'to_name': clin.clinic_name,
                     'from_nane': doctor_profile.first_name + ' ' + doctor_profile.last_name,
-                    'profile_link': ''
+                    'profile_link': 'www.vreaudoctor.ro/doctor-page/?id='+doctor_profile.id
                 }
-                Util.send_email(data=data, email_type='')
+                Util.send_email(data=data, email_type='notification-invited-collab-doctor-to-clinic')
             except Exception:
                 pass
 
