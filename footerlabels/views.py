@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 
 from authentication.models import Clinic, ClinicReview, CollaboratorDoctor
 from authentication.serializers import ClinicProfileSerializer, ReviewSerializer, ClinicProfileSimpleSerializer, \
-    DoctorComplexProfileSerializer, ReviewDoctorSerializer
+    DoctorComplexProfileSerializer, ReviewDoctorSerializer, ClinicProfileNamesSerializer
 from footerlabels.models import Footerlabels, MedicalUnityTypes, AcademicDegree, Speciality, MedicalSkills, \
     ClinicSpecialities, MedicalFacilities, Newsletter, BannerCards, AddSense, BlogPost, Tag
 from footerlabels.serializers import FooterlabelsSerializer, MedicalUnityTypesSerializer, AcademicDegreeSerializer, \
@@ -239,15 +239,20 @@ class DoctorList(generics.ListAPIView):
 
             queryset = queryset.filter(Q(first_name__icontains=name) | Q(last_name__icontains=name))
 
-        academic_degree = self.request.query_params.get('academic_degree', [])
-        if academic_degree:
-            town = academic_degree.split("|")
-            queryset = queryset.filter(academic_degree__id__in=town)
+        dc = self.request.query_params.get('doctor_specialities', [])
+        if dc:
+            town = dc.split("|")
+            queryset = queryset.filter(speciality__id__in=town)
 
-        medical_skill = self.request.query_params.get('medical_skill', [])
+        medical_skill = self.request.query_params.get('doctor_competences', [])
         if medical_skill:
-            specialities = medical_skill.split("|")
-            queryset = queryset.filter(medical_skill__id__in=specialities)
+            ms = medical_skill.split("|")
+            queryset = queryset.filter(medical_skill__id__in=ms)
+
+        collab_clinics = self.request.query_params.get('doctor_clinics', [])
+        if collab_clinics:
+            cc = collab_clinics.split("|")
+            queryset = queryset.filter(collaborator_clinic__id__in=cc)
 
         return queryset
 
@@ -326,3 +331,8 @@ class BlogPostDetailAPIView(generics.RetrieveAPIView):
 class TagListAPIView(generics.ListAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+
+
+class ClinicNamesListAPIView(generics.ListAPIView):
+    queryset = Clinic.objects.filter(is_visible=True)
+    serializer_class = ClinicProfileNamesSerializer

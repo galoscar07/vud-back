@@ -142,6 +142,7 @@ class Clinic(models.Model):
 
     # Is visible
     is_visible = models.BooleanField(default=False)
+    is_notification_email_send = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Clinica'
@@ -150,12 +151,12 @@ class Clinic(models.Model):
     def __str__(self):
         return f'Nume clinica: {self.clinic_name}, firma: {self.company} - {self.clinic_town}'
 
-
-# @receiver(models.signals.post_save, sender=Clinic)
-# def send_email_on_visibility_change_clinic(sender, instance, **kwargs):
-#     if instance.is_visible and kwargs.get('created', False) and instance.user:
-#         data = {'email': instance.user.email}
-#         Util.send_email(data=data, email_type='account-approved')
+    def save(self, *args, **kwargs):
+        if self.is_visible and not self.is_notification_email_send:
+            data = {'email': self.user.email}
+            Util.send_email(data=data, email_type='account-approved')
+            self.is_notification_email_send = True
+        super().save(*args, **kwargs)
 
 
 def upload_path_collaborator_doctor(instance, filename):
@@ -195,6 +196,7 @@ class CollaboratorDoctor(models.Model):
 
     # Is visible
     is_visible = models.BooleanField(default=False)
+    is_notification_email_send = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Doctor'
@@ -206,6 +208,13 @@ class CollaboratorDoctor(models.Model):
         except Exception:
             spec = 'Nu este selectata specialitate'
         return f'{self.first_name} {self.last_name} - {spec}'
+
+    def save(self, *args, **kwargs):
+        if self.is_visible and not self.is_notification_email_send:
+            data = {'email': self.user.email}
+            Util.send_email(data=data, email_type='account-approved')
+            self.is_notification_email_send = True
+        super().save(*args, **kwargs)
 
 
 # @receiver(models.signals.post_save, sender=CollaboratorDoctor)

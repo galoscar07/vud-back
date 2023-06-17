@@ -23,7 +23,8 @@ from authentication.serializers import RegisterSerializer, EmailVerificationSeri
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, AcademicDegree, Speciality
+from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, AcademicDegree, Speciality, \
+    MedicalSkills
 from .models import User, Clinic, Document, RequestToRedeemClinic, CollaboratorDoctor, RequestToRedeemDoctor
 from .utils import Util
 
@@ -395,6 +396,13 @@ class UpdateClinicProfileView(APIView):
             try:
                 doctor = CollaboratorDoctor.objects.get(id=doc)
                 clinic_profile.collaborator_doctor.add(doctor)
+                data = {
+                    'email': doctor.primary_email,
+                    'to_name': doctor.first_name,
+                    'from_nane': clinic_name,
+                    'profile_link': 'www.vreaudoctor.ro/clinic-page/?id=' + clinic_profile.id
+                }
+                Util.send_email(data=data, email_type='notification-invited-collab-doctor-to-clinic')
             except Exception:
                 pass
 
@@ -402,6 +410,13 @@ class UpdateClinicProfileView(APIView):
             try:
                 clin = Clinic.objects.get(id=clinic)
                 clinic_profile.collaborator_doctor.add(clin)
+                data = {
+                    'email': clin.primary_email,
+                    'to_name': clin.clinic_name,
+                    'from_nane': clinic_name,
+                    'profile_link': 'www.vreaudoctor.ro/clinic-page/?id=' + clinic_profile.id
+                }
+                Util.send_email(data=data, email_type='notification-invited-collab-doctor-to-clinic')
             except Exception:
                 pass
 
@@ -439,6 +454,9 @@ class UpdateDoctorProfileView(APIView):
 
         doctors = request.data.get('doctor', "").split("|")
         clinics = request.data.get('clinic', "").split("|")
+
+        file1 = request.data.get('file1', None)
+        file2 = request.data.get('file2', None)
 
         academic_degree = request.data.get('academic_degree', None)
         if academic_degree:
@@ -484,10 +502,12 @@ class UpdateDoctorProfileView(APIView):
 
         for ms in medical_skill:
             try:
-                doc_ms = Speciality.objects.get(id=ms)
+                doc_ms = MedicalSkills.objects.get(id=ms)
                 doctor_profile.speciality.add(doc_ms)
-            except Speciality.DoesNotExist:
+            except MedicalSkills.DoesNotExist:
                 pass
+
+        doctor_profile.save()
 
         if len(doctors) > 200:
             return Response({"error": "Nu poti adaug mai mult de 200 de doctori"}, status=400)
@@ -495,13 +515,16 @@ class UpdateDoctorProfileView(APIView):
         if len(clinics) > 200:
             return Response({"error": "Nu poti adaug mai mult de 200 de clinici"}, status=400)
 
+        if not file1 or not file2:
+            return Response({"error": "Nu s-au incarcat documentele"}, status=400)
+
         for doc in doctors:
             try:
                 doctor = CollaboratorDoctor.objects.get(id=doc)
                 doctor_profile.collaborator_doctor.add(doctor)
                 data = {
-                    'email': doctor_profile.primary_email,
-                    'to_name': doctor_profile.first_name,
+                    'email': doctor.primary_email,
+                    'to_name': doctor.first_name,
                     'from_nane': doctor_profile.first_name + ' ' + doctor_profile.last_name,
                     'profile_link': 'www.vreaudoctor.ro/doctor-page/?id='+doctor_profile.id
                 }
@@ -523,15 +546,10 @@ class UpdateDoctorProfileView(APIView):
             except Exception:
                 pass
 
-        file1 = request.data.get('file1', None)
-        file2 = request.data.get('file2', None)
-
         doc1 = Document.objects.create(owner=user, file=file1)
         doc2 = Document.objects.create(owner=user, file=file2)
         doc1.save()
         doc2.save()
-
-        doctor_profile.save()
 
         data = {
             'email': user.email

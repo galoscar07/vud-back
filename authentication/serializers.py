@@ -156,6 +156,12 @@ class ClinicProfileSimpleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ClinicProfileNamesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Clinic
+        fields = ('clinic_name', 'id')
+
+
 class ClinicProfileSerializer(serializers.ModelSerializer):
     reviews = serializers.SerializerMethodField()
     clinic_specialities = ClinicSpecialitiesSerializer(many=True, read_only=True)

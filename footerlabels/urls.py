@@ -16,6 +16,7 @@ urlpatterns = [
     path('blogposts/', views.BlogPostListAPIView.as_view(), name='blogpost-list'),
     path('blogposts/<int:pk>/', views.BlogPostDetailAPIView.as_view(), name='blogpost-detail'),
     path('tags/', views.TagListAPIView.as_view(), name='tag-list'),
+    path('clinics-list/', views.ClinicNamesListAPIView.as_view(), name='clinic-list'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
