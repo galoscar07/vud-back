@@ -427,6 +427,7 @@ class UpdateDoctorProfileView(APIView):
         first_name = request.data.get('first_name', None)
         last_name = request.data.get('last_name', None)
         primary_phone = request.data.get('primary_phone', None)
+        primary_phone_vud = request.data.get('primary_phone_vud', None)
         primary_email = request.data.get('primary_email', None)
         website = request.data.get('website', None)
         website_facebook = request.data.get('website_facebook', None)
@@ -438,6 +439,7 @@ class UpdateDoctorProfileView(APIView):
 
         doctors = request.data.get('doctor', "").split("|")
         clinics = request.data.get('clinic', "").split("|")
+        import pdb;pdb.set_trace()
 
         academic_degree = request.data.get('academic_degree', None)
         if academic_degree:
@@ -504,6 +506,15 @@ class UpdateDoctorProfileView(APIView):
             try:
                 clin = Clinic.objects.get(id=clinic)
                 doctor_profile.collaborator_clinic.add(clin)
+
+                # TODO finish this also for doctors collab and for clinic data clinic and doctor colabs
+                data = {
+                    'email': clin.primary_email,
+                    'to_name': clin.clinic_name,
+                    'from_nane': doctor_profile.first_name + ' ' + doctor_profile.last_name,
+                    'profile_link': ''
+                }
+                Util.send_email(data=data, email_type='')
             except Exception:
                 pass
 
@@ -543,12 +554,12 @@ def invite_collaborator_doctor(request):
             'email': email,
             'custom': True if message else False,
             'message': message,
-            'nume': from_sent,
+            'name': from_sent,
             'typeAdded': type_added,
             'type': from_type,
             'toSent': to_sent,
         }
-        Util.send_email(data=data, email_type='thank-you-sign-up')
+        Util.send_email(data=data, email_type='invite-part-of-team')
         return Response({"success": "Success"}, status=200)
 
     except Exception:
@@ -573,12 +584,12 @@ def invite_collaborator_clinic(request):
             'email': email,
             'custom': True if message else False,
             'message': message,
-            'nume': from_sent,
+            'name': from_sent,
             'typeAdded': type_added,
             'type': from_type,
             'toSent': to_sent,
         }
-        Util.send_email(data=data, email_type='thank-you-sign-up')
+        Util.send_email(data=data, email_type='invite-part-of-team')
         return Response({"success": "Success"}, status=200)
 
     except Exception:

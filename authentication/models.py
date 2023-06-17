@@ -152,8 +152,8 @@ class Clinic(models.Model):
 
 
 @receiver(models.signals.post_save, sender=Clinic)
-def send_email_on_visibility_change(sender, instance, **kwargs):
-    if instance.is_visible and kwargs.get('created', False):
+def send_email_on_visibility_change_clinic(sender, instance, **kwargs):
+    if instance.is_visible and kwargs.get('created', False) and instance.user:
         data = {'email': instance.user.email}
         Util.send_email(data=data, email_type='account-approved')
 
@@ -209,8 +209,8 @@ class CollaboratorDoctor(models.Model):
 
 
 @receiver(models.signals.post_save, sender=CollaboratorDoctor)
-def send_email_on_visibility_change(sender, instance, **kwargs):
-    if instance.is_visible and not kwargs.get('created', True):
+def send_email_on_visibility_change_doctor(sender, instance, **kwargs):
+    if instance.is_visible and kwargs.get('created', False) and instance.user:
         data = {'email': instance.user.email}
         Util.send_email(data=data, email_type='account-approved')
 

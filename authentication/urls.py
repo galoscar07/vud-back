@@ -4,7 +4,8 @@ from footerlabels.views import ClinicList, TopClinicsAPIView, ClinicDetailAPIVie
     DoctorDetailAPIView, ReviewDoctorCreate
 from .views import RegisterView, LoginAPIView, VerifyEmail, PasswordTokenCheckAPIView, RequestPasswordResetAPIView, \
     SetNewPasswordAPIView, VerifyEmailResend, GetUserProfileAPIView, UserViewSet, UpdateAdminData, UpdateClinicTypeData, \
-    UpdateClinicProfileView, DeleteUserView, redeem_clinic_request, UpdateDoctorProfileView, redeem_doctor_request
+    UpdateClinicProfileView, DeleteUserView, redeem_clinic_request, UpdateDoctorProfileView, redeem_doctor_request, \
+    invite_collaborator_doctor, invite_collaborator_clinic
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -54,5 +55,8 @@ urlpatterns = [
 
     path('get-doctors/', DoctorList.as_view(), name='get-doctors-filters'),
     path('doctors/<int:id>/', DoctorDetailAPIView.as_view(), name='get-doctor-by-id'),
-    path('doctor-review/', ReviewDoctorCreate.as_view(), name='create-doctor-review')
+    path('doctor-review/', ReviewDoctorCreate.as_view(), name='create-doctor-review'),
+
+    path('invite-doctor/', invite_collaborator_doctor, name='invite-doctor'),
+    path('invite-clinic/', invite_collaborator_clinic, name='invite-clinic')
 ]

@@ -135,6 +135,21 @@ EMAIL_TEMPLATES = {
         </body>
     </html>
     '''),
+    'notification-invited-collab-doctor-to-clinic': Template('''
+    <html>
+        <body>
+            <div style="margin-top: 40px; width: 100%; height: 200px; background-color: #1BB583; display: flex; flex-direction: row; justify-content: center; align-items: center; color: white;">
+                <img src='cid:myimageid' width="160" height="160" >
+                <h1 style="color: #FFFFFF">Ai primit invitație pe Vreaudoctor.ro</h1>
+            </div>
+            <div style="margin-top: 30px;">
+               <p>Buna ziua, $to_name</p>
+               <p>$from_name te-a adaugat colaborator pe pagina de profil de pe vreaudoctor.ro</p>
+               <p>Pentru a vedea pagina de profil poti da click aici: <a href="$profile_link">$link</a></p>
+            </div>
+        </body>
+    </html>
+    '''),
 }
 
 
@@ -237,7 +252,7 @@ class Util:
             if data['custom']:
                 template_processed = EMAIL_TEMPLATES['invite-part-of-team-custom'].substitute(message=data['message'])
             else:
-                template_processed = EMAIL_TEMPLATES['invite-part-of-team'].substitute(nume=data['name'], typeAdded=data['typeAdded'], type=data['type'])
+                template_processed = EMAIL_TEMPLATES['invite-part-of-team'].substitute(nume=data['name'], typeAdded=data['typeAdded'], type=data['type'], toSent=data['toSent'])
             message = {
                 "from_email": SENDER,
                 "from_name": "Vreau Doctor",
