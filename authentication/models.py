@@ -151,11 +151,11 @@ class Clinic(models.Model):
         return f'Nume clinica: {self.clinic_name}, firma: {self.company} - {self.clinic_town}'
 
 
-@receiver(models.signals.post_save, sender=Clinic)
-def send_email_on_visibility_change_clinic(sender, instance, **kwargs):
-    if instance.is_visible and kwargs.get('created', False) and instance.user:
-        data = {'email': instance.user.email}
-        Util.send_email(data=data, email_type='account-approved')
+# @receiver(models.signals.post_save, sender=Clinic)
+# def send_email_on_visibility_change_clinic(sender, instance, **kwargs):
+#     if instance.is_visible and kwargs.get('created', False) and instance.user:
+#         data = {'email': instance.user.email}
+#         Util.send_email(data=data, email_type='account-approved')
 
 
 def upload_path_collaborator_doctor(instance, filename):
@@ -208,11 +208,11 @@ class CollaboratorDoctor(models.Model):
         return f'{self.first_name} {self.last_name} - {spec}'
 
 
-@receiver(models.signals.post_save, sender=CollaboratorDoctor)
-def send_email_on_visibility_change_doctor(sender, instance, **kwargs):
-    if instance.is_visible and kwargs.get('created', False) and instance.user:
-        data = {'email': instance.user.email}
-        Util.send_email(data=data, email_type='account-approved')
+# @receiver(models.signals.post_save, sender=CollaboratorDoctor)
+# def send_email_on_visibility_change_doctor(sender, instance, **kwargs):
+#     if instance.is_visible and kwargs.get('created', False) and instance.user:
+#         data = {'email': instance.user.email}
+#         Util.send_email(data=data, email_type='account-approved')
 
 
 class DoctorReview(models.Model):
