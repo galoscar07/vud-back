@@ -27,16 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
-    '172.31.30.95',
-    'server.vreaudoctor.ro',
-    'vreaudoctor.ro'
-    'vud-api.eu-central-1.elasticbeanstalk.com',
-    'https://vud-be.herokuapp.com'
+    'vud-be.active.ro',
+    'vud-fe.active.ro'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://vud-fe.herokuapp.com',
-    'https://vud-be.herokuapp.com'
+    'https://vud-be.active.ro',
+    'https://vud-fe.active.ro',
 ]
 
 # Application definition
@@ -107,24 +104,12 @@ WSGI_APPLICATION = 'vudback.wsgi.application'
 # TODO set the env variable
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-if 'RDS_DB_NAME' in os.environ:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ['RDS_DB_NAME'],
-            'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': os.environ['RDS_PASSWORD'],
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 
 REST_FRAMEWORK = {
@@ -188,38 +173,8 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-# TODO set the env variables
-# Static Settings
-# USE_S3 = os.getenv('USE_S3') == 'TRUE'
+STATIC_URL = '/staticfiles/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_URL = '/mediafiles/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
-# if USE_S3:
-    # aws settings
-AWS_ACCESS_KEY_ID = 'AKIAQSXTX7C7RVCD7DYT'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'vud-2023'
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-# Only public read for now
-AWS_QUERYSTRING_AUTH = False
-AWS_DEFAULT_ACL='public-read'
-# s3 static settings
-STATIC_LOCATION = 'static'
-STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
-STATICFILES_STORAGE = 'vudback.storage_backends.StaticStorage'
-# s3 public media settings
-PUBLIC_MEDIA_LOCATION = 'media'
-MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
-DEFAULT_FILE_STORAGE = 'vudback.storage_backends.MediaStorage'
-# else:
-# STATIC_URL = '/staticfiles/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-#     MEDIA_URL = '/mediafiles/'
-#     MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
-
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
-
-
-# TODO only for heroku settings
-# import django_heroku
-# django_heroku.settings(locals())
-#

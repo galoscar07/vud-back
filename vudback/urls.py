@@ -48,8 +48,8 @@ urlpatterns = [
     path('auth/', include('authentication.urls')),
     path('options/', include('footerlabels.urls')),
     path('', HelloWorldView.as_view(), name='hello-world'),
-
-    # re_path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    # re_path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
