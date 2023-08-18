@@ -400,7 +400,7 @@ class UpdateClinicProfileView(APIView):
                     'email': doctor.primary_email,
                     'to_name': doctor.first_name,
                     'from_nane': clinic_name,
-                    'profile_link': 'www.vreaudoctor.ro/clinic-page/?id=' + clinic_profile.id
+                    'profile_link': 'https://www.vud.active.ro/clinic-page/?id=' + clinic_profile.id
                 }
                 Util.send_email(data=data, email_type='notification-invited-collab-doctor-to-clinic')
             except Exception:
@@ -414,7 +414,7 @@ class UpdateClinicProfileView(APIView):
                     'email': clin.primary_email,
                     'to_name': clin.clinic_name,
                     'from_nane': clinic_name,
-                    'profile_link': 'www.vreaudoctor.ro/clinic-page/?id=' + clinic_profile.id
+                    'profile_link': 'https://www.vud.active.ro/clinic-page/?id=' + clinic_profile.id
                 }
                 Util.send_email(data=data, email_type='notification-invited-collab-doctor-to-clinic')
             except Exception:
@@ -526,7 +526,7 @@ class UpdateDoctorProfileView(APIView):
                     'email': doctor.primary_email,
                     'to_name': doctor.first_name,
                     'from_nane': doctor_profile.first_name + ' ' + doctor_profile.last_name,
-                    'profile_link': 'www.vreaudoctor.ro/doctor-page/?id='+doctor_profile.id
+                    'profile_link': 'https://www.vud.active.ro/doctor-page/?id='+doctor_profile.id
                 }
                 Util.send_email(data=data, email_type='notification-invited-collab-doctor-to-clinic')
             except Exception:
@@ -540,7 +540,7 @@ class UpdateDoctorProfileView(APIView):
                     'email': clin.primary_email,
                     'to_name': clin.clinic_name,
                     'from_nane': doctor_profile.first_name + ' ' + doctor_profile.last_name,
-                    'profile_link': 'www.vreaudoctor.ro/doctor-page/?id='+doctor_profile.id
+                    'profile_link': 'https://www.vud.active.ro/doctor-page/?id='+doctor_profile.id
                 }
                 Util.send_email(data=data, email_type='notification-invited-collab-doctor-to-clinic')
             except Exception:

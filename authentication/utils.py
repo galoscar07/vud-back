@@ -74,8 +74,8 @@ EMAIL_TEMPLATES = {
             <div style="margin-top: 30px;">
                 <p>Suntem bucuroși să îți confirmăm aprobarea contului tău pe vreaudoctor.ro. </p>
                 <p>Ai acum acces la toate funcționalitățile platformei și poți începe să îți promovezi serviciile medicale. Îți mulțumim că ai ales VreauDoctor.ro!</p>
-                <a href="https://www.vreaudoctor.ro/login" style="padding: 10px; width: 300px; background-color: #17616C; color: white;">Accesează cont</a>
-                <p>sau să copiați linkul de acces de mai jos și să-l accesați din bara de adrese: https://www.vreaudoctor.ro/login</p>
+                <a href="https://https://www.vud.active.ro/login" style="padding: 10px; width: 300px; background-color: #17616C; color: white;">Accesează cont</a>
+                <p>sau să copiați linkul de acces de mai jos și să-l accesați din bara de adrese: https://https://www.vud.active.ro/login</p>
                 <p>Echipa,</p>
                 <p style="color: #17616C;">Vreaudoctor.ro</p>
             </div>
@@ -115,7 +115,7 @@ EMAIL_TEMPLATES = {
             <div style="margin-top: 30px;">
                 <p>$nume te-a adăugat $typeAdded pe pagina de profil a $type de pe vreaudoctor.ro.</p>
                 <p>$toSent creează-ți și tu cont, alătură-te comunității vreaudoctor.ro și ajută pacineții să te găsească mai ușor.</p>
-                <a href="https://www.vreaudoctor.ro/register" style="padding: 10px; width: 300px; background-color: #17616C; color: white;">Creează cont</a>
+                <a href="https://https://www.vud.active.ro/register" style="padding: 10px; width: 300px; background-color: #17616C; color: white;">Creează cont</a>
                 <p>Echipa,</p>
                 <p style="color: #17616C;">Vreaudoctor.ro</p>
             </div>
