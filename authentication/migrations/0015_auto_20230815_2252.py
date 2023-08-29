@@ -28,7 +28,6 @@ def load_data_from_py(apps, schema_editor):
             medic_type = doc.get('medic_type', '')
             competente = doc.get('competente', '')
             doctor_clinics = doc.get('doctor_clinics', '')
-
             doc_model = CollaboratorDoctor(
                 first_name=first_name,
                 last_name=last_name,
@@ -63,24 +62,26 @@ def load_data_from_py(apps, schema_editor):
                         fac_obj = Speciality.objects.create(label=spec)
                         doc_model.speciality.add(fac_obj)
 
-        if competente:
-            for fac in competente:
-                try:
-                    fac_obj = MedicalSkills.objects.get(label=fac)
-                    doc_model.medical_skill.add(fac_obj)
-                except MedicalSkills.DoesNotExist as e:
-                    fac_obj = MedicalSkills.objects.create(label=fac)
-                    doc_model.medical_skill.add(fac_obj)
+            if competente:
+                for fac in competente:
+                    try:
+                        fac_obj = MedicalSkills.objects.get(label=fac)
+                        doc_model.medical_skill.add(fac_obj)
+                    except MedicalSkills.DoesNotExist as e:
+                        fac_obj = MedicalSkills.objects.create(label=fac)
+                        doc_model.medical_skill.add(fac_obj)
 
-        if doctor_clinics:
-            for cc in doctor_clinics:
-                try:
-                    fac_obj = Clinic.objects.get(clinic_name=cc)
-                    doc_model.collaborator_clinic.add(fac_obj)
-                except Clinic.DoesNotExist as e:
-                    pass
+            if doctor_clinics:
+                for cc in doctor_clinics:
+                    try:
+                        fac_obj = Clinic.objects.get(clinic_name=cc)
+                        doc_model.collaborator_clinic.add(fac_obj)
+                    except Clinic.DoesNotExist as e:
+                        pass
+                    except Exception as e:
+                        pass
 
-        doc_model.save()
+            doc_model.save()
 
 
 class Migration(migrations.Migration):

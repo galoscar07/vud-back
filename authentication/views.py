@@ -115,7 +115,6 @@ class RequestPasswordResetAPIView(APIView):
     serializer_class = ResetPasswordEmailSerializer
 
     def post(self, request):
-        data = {'request': request, 'data': request.data}
         email = request.data.get('email', '')
         try:
             user = User.objects.get(email=email)
@@ -133,8 +132,8 @@ class RequestPasswordResetAPIView(APIView):
             }
             Util.send_email(data=data, email_type='reset-password')
 
-            return Response({'url': absolute_url}, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_200_OK)
+            return Response({'message': "Un email a fost trimis in cazul in care adresa de email se afla la noi in sistem. Va multumim"}, status=status.HTTP_200_OK)
+        return Response({'message': "Un email a fost trimis in cazul in care adresa de email se afla la noi in sistem. Va multumim"}, status=status.HTTP_200_OK)
 
 
 class PasswordTokenCheckAPIView(generics.GenericAPIView):
@@ -188,10 +187,14 @@ class GetUserProfileAPIView(APIView):
             # if the user is a student
             if user.is_clinic:
                 serializer = ClinicProfileSerializer(user.clinic_profile)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                data = serializer.data
+                data['is_clinic'] = True
+                return Response(data , status=status.HTTP_200_OK)
             elif user.is_doctor:
                 serializer = DoctorProfileSerializer(user.doctor_profile)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                data = serializer.data
+                data['is_doctor'] = True
+                return Response(data, status=status.HTTP_200_OK)
             else:
                 return Response({'error': 'No profile'}, status=401)
         return Response({'error': 'Authentication credentials were not provided.'}, status=401)
@@ -253,7 +256,6 @@ class UpdateAdminData(APIView):
             user.phone_number_optional = request.data.get('phone_number_optional', '')
             user.contact_email_optional = request.data.get('contact_email_optional', '')
             # Save clinic data
-            # TODO Check file saving
             file1 = request.data.get('file1', None)
             file2 = request.data.get('file2', None)
             try:
@@ -264,7 +266,8 @@ class UpdateAdminData(APIView):
                 clinic_profile.county = request.data.get('county', '')
                 clinic_profile.street = request.data.get('street', '')
                 clinic_profile.number = request.data.get('number', '')
-                clinic_profile.step = 3
+                if clinic_profile.step <= 3:
+                    clinic_profile.step = 3
                 clinic_profile.save()
                 doc1 = Document.objects.create(owner=user, file=file1)
                 doc2 = Document.objects.create(owner=user, file=file2)
@@ -275,8 +278,9 @@ class UpdateAdminData(APIView):
 
             # Save the data
             user.save()
+            data = ClinicProfileSerializer(user.clinic_profile).data
 
-        return Response({'success': 'Saved'}, status=200)
+        return Response({'success': 'Saved', "data": data}, status=200)
 
 
 class UpdateClinicTypeData(APIView):
@@ -302,9 +306,11 @@ class UpdateClinicTypeData(APIView):
                 for elem in list_of_clinic_types:
                     clinic_type = MedicalUnityTypes.objects.get(id=elem)
                     clinic_profile.medical_unit_types.add(clinic_type)
-                clinic_profile.step = 4
+                if clinic_profile.step <= 4:
+                    clinic_profile.step = 4
                 clinic_profile.save()
-                return Response({"success": 'Success'}, status=200)
+                data = ClinicProfileSerializer(clinic_profile).data
+                return Response({"success": 'Success', "data": data}, status=200)
             except Exception as s:
                 return Response({"error": s}, status=400)
 
@@ -370,7 +376,9 @@ class UpdateClinicProfileView(APIView):
         clinic_profile.description = description
         clinic_profile.clinic_schedule = clinic_schedule
         clinic_profile.profile_picture = profile_picture
-        clinic_profile.step = 5
+
+        if clinic_profile.step <= 5:
+            clinic_profile.step = 5
 
         for cs in clinic_specialities:
             try:
@@ -425,9 +433,10 @@ class UpdateClinicProfileView(APIView):
             'email': user.email
         }
         Util.send_email(data=data, email_type='thank-you-sign-up')
+        data = ClinicProfileSerializer(clinic_profile).data
 
         clinic_profile.save()
-        return Response({"success": "Success"}, status=200)
+        return Response({"success": "Success", "data": data}, status=200)
 
 
 class UpdateDoctorProfileView(APIView):
@@ -484,7 +493,9 @@ class UpdateDoctorProfileView(APIView):
         doctor_profile.website_youtube = website_youtube
         doctor_profile.whatsapp = whatsapp
         doctor_profile.description = description
-        doctor_profile.step = 5
+
+        if doctor_profile.step <= 5:
+            doctor_profile.step = 5
 
         for ad in academic_degree:
             try:
@@ -503,7 +514,7 @@ class UpdateDoctorProfileView(APIView):
         for ms in medical_skill:
             try:
                 doc_ms = MedicalSkills.objects.get(id=ms)
-                doctor_profile.speciality.add(doc_ms)
+                doctor_profile.medical_skill.add(doc_ms)
             except MedicalSkills.DoesNotExist:
                 pass
 
@@ -556,7 +567,9 @@ class UpdateDoctorProfileView(APIView):
         }
         Util.send_email(data=data, email_type='thank-you-sign-up')
 
-        return Response({"success": "Success"}, status=200)
+        data = DoctorProfileSerializer(doctor_profile).data
+
+        return Response({"success": "Success", "data": data}, status=200)
 
 
 @api_view(['POST'])
