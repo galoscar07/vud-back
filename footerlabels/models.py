@@ -171,16 +171,19 @@ class Tag(models.Model):
 
 
 class BlogPost(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, verbose_name="Titlu Postare")
     date_created = models.DateTimeField(auto_now_add=True)
-    tags = models.ManyToManyField('Tag', related_name='blogposts', blank=True)
-    banner_image = models.ImageField(upload_to=upload_path_blog_banner_image, blank=True, null=True)
-    headline_1 = models.CharField(max_length=255)
-    content_1 = models.TextField()
-    image_1 = models.ImageField(upload_to=upload_path_blog_image_1_image, blank=True, null=True)
-    headline_2 = models.CharField(max_length=255)
-    content_2 = models.TextField()
-    image_2 = models.ImageField(upload_to=upload_path_blog_image_2_image, blank=True, null=True)
+    tags = models.ManyToManyField('Tag', related_name='blogposts', blank=True, verbose_name="Taguri postare")
+    banner_image = models.ImageField(upload_to=upload_path_blog_banner_image, blank=True, null=True, verbose_name="Imagine Banner")
+    link_banner_image = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Link Imagine Banner")
+    headline_1 = models.CharField(max_length=255, blank=True, null=True, verbose_name="Titlu Paragraf 1")
+    content_1 = models.TextField(blank=True, null=True, verbose_name="Continut Paragraf 1")
+    image_1 = models.ImageField(upload_to=upload_path_blog_image_1_image, blank=True, null=True, verbose_name="Imagine 1")
+    link_image_1 = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Link Imagine 1")
+    headline_2 = models.CharField(max_length=255, blank=True, null=True, verbose_name="Titlu Paragraf 2")
+    content_2 = models.TextField(blank=True, null=True, verbose_name="Continut paragraf 2")
+    image_2 = models.ImageField(upload_to=upload_path_blog_image_2_image, blank=True, null=True, verbose_name="Imagine 2")
+    link_image_2 = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Link Imagine 2")
 
     def __str__(self):
         return str(self.id) + " " + self.title

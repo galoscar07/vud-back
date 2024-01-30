@@ -25,6 +25,7 @@ from drf_yasg import openapi
 
 from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, AcademicDegree, Speciality, \
     MedicalSkills
+from vudback.settings import WEBSITE_URL
 from .models import User, Clinic, Document, RequestToRedeemClinic, CollaboratorDoctor, RequestToRedeemDoctor
 from .utils import Util
 
@@ -42,7 +43,7 @@ class RegisterView(generics.GenericAPIView):
         user = User.objects.get(email=user_data['email'])
         token = RefreshToken.for_user(user).access_token
 
-        absolute_url = f'https://vreaudoctor.ro/email-verification/{str(token)}/'
+        absolute_url = f'{WEBSITE_URL}email-verification/{str(token)}/'
 
         data = {
             'url': absolute_url,
@@ -87,7 +88,7 @@ class VerifyEmailResend(generics.GenericAPIView):
             user = User.objects.get(email=request.data.get('email'))
             token = RefreshToken.for_user(user).access_token
 
-            absolute_url = f'https://vreaudoctor.ro/email-verification/{str(token)}/'
+            absolute_url = f'{WEBSITE_URL}email-verification/{str(token)}/'
 
             data = {
                 'url': absolute_url,
@@ -124,7 +125,7 @@ class RequestPasswordResetAPIView(APIView):
         if user:
             uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
-            absolute_url = f'https://vreaudoctor.ro/email-verification/?token={str(token)}&uidb={str(uidb64)}'
+            absolute_url = f'{WEBSITE_URL}reset-password/?token={str(token)}&uidb={str(uidb64)}'
 
             data = {
                 'url': absolute_url,
@@ -494,7 +495,7 @@ class UpdateDoctorProfileView(APIView):
         doctor_profile.whatsapp = whatsapp
         doctor_profile.description = description
 
-        if doctor_profile.step <= 5:
+        if int(doctor_profile.step) <= 5:
             doctor_profile.step = 5
 
         for ad in academic_degree:

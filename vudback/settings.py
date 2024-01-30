@@ -22,6 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # TODO .env file
 SECRET_KEY = 'django-insecure-6vzevt241lb^)k)5qj=^#w1&*btut9inc_4c-#i_^gzjm34gl7'
 
+# WEBSITE_URL = 'https://vreaudoctor.ro/'
+WEBSITE_URL = 'https://vud.active.ro/'
+# WEBSITE_URL = '127.0.0.1:3000/'
+
 AUTH_USER_MODEL = 'authentication.User'
 DEBUG = True
 
