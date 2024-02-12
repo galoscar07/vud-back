@@ -147,23 +147,29 @@ class ClinicList(generics.ListAPIView):
 
             queryset = queryset.filter(clinic_name__icontains=name)
 
-        # Filtering by clinic town
+        # Filtering by town
         town = self.request.query_params.get('town', [])
         if town:
             town = town.split("|")
-            queryset = queryset.filter(clinic_town__icontains=town)
+            queryset = queryset.filter(clinic_town__icontains=town[0])
 
-        # Filtering by clinic specialities
+        # Filtering by specialities
         specialities = self.request.query_params.get('clinic_specialities', [])
         if specialities:
             specialities = specialities.split("|")
             queryset = queryset.filter(clinic_specialities__id__in=specialities)
 
         # Filtering by unity facilities
-        facilities = self.request.query_params.get('unity_facilities', [])
+        facilities = self.request.query_params.get('unit_facilities', [])
         if facilities:
             facilities = facilities.split("|")
             queryset = queryset.filter(unity_facilities__id__in=facilities)
+
+        # Filtering by unity type
+        unity = self.request.query_params.get('unity_types', [])
+        if unity:
+            unity = unity.split("|")
+            queryset = queryset.filter(medical_unit_types__id__in=unity)
 
         return queryset
 
