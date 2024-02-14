@@ -193,7 +193,7 @@ class DoctorComplexProfileSerializer(serializers.ModelSerializer):
     review_count = serializers.IntegerField(read_only=True)
 
     def get_reviews(self, obj):
-        visible_reviews = obj.reviews.filter(is_visible=True)
+        visible_reviews = obj.reviewsdoctors.filter(is_visible=True)
         serializer = ReviewDoctorSerializer(visible_reviews, many=True)
         return serializer.data
 

@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
 from phonenumber_field.modelfields import PhoneNumberField
@@ -123,6 +125,10 @@ class Clinic(models.Model):
     whatsapp = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(max_length=500)
 
+    # Audible
+    created_at = models.DateTimeField(auto_now_add=True)  # This field stores the creation date/time
+    updated_at = models.DateTimeField(auto_now=True)
+
     # Collab
     collaborator_doctor = models.ManyToManyField('CollaboratorDoctor', blank=True)
     collaborator_clinic = models.ManyToManyField('self', blank=True)
@@ -164,6 +170,10 @@ def upload_path_collaborator_doctor(instance, filename):
 
 class CollaboratorDoctor(models.Model):
     user = models.OneToOneField(User, related_name='doctor_profile', on_delete=models.CASCADE, blank=True, null=True)
+
+    # Audible
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     profile_picture = models.ImageField(upload_to=upload_path_collaborator_doctor, blank=True, null=True)
     first_name = models.CharField(max_length=255)
@@ -224,7 +234,7 @@ class CollaboratorDoctor(models.Model):
 
 
 class DoctorReview(models.Model):
-    doctor = models.ForeignKey(CollaboratorDoctor, on_delete=models.CASCADE, related_name='reviews')
+    doctor = models.ForeignKey(CollaboratorDoctor, on_delete=models.CASCADE, related_name='reviewsdoctors')
     rating = models.PositiveIntegerField()
     comment = models.TextField(blank=True)
     name = models.CharField(max_length=255)

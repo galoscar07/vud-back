@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(max_length=254)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('is_visible', models.BooleanField(default=False)),
-                ('doctor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to='authentication.collaboratordoctor')),
+                ('doctor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviewsdoctors', to='authentication.collaboratordoctor')),
             ],
             options={
                 'ordering': ['-created_at'],

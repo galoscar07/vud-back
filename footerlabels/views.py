@@ -6,7 +6,7 @@ from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from authentication.models import Clinic, ClinicReview, CollaboratorDoctor
+from authentication.models import Clinic, ClinicReview, CollaboratorDoctor, DoctorReview
 from authentication.serializers import ClinicProfileSerializer, ReviewSerializer, ClinicProfileSimpleSerializer, \
     DoctorComplexProfileSerializer, ReviewDoctorSerializer, ClinicProfileNamesSerializer
 from footerlabels.models import Footerlabels, MedicalUnityTypes, AcademicDegree, Speciality, MedicalSkills, \
@@ -207,6 +207,29 @@ class TopClinicsAPIView(APIView):
 
         return Response(serializer.data)
 
+class TopDoctorsAPIView(APIView):
+    def get(self, request, format=None):
+        # Get the first 4 clinics ordered by their rating
+        doctors = CollaboratorDoctor.objects.annotate(
+            average_rating=Avg('reviewsdoctors__rating', filter=Q(reviewsdoctors__is_visible=True)),
+            review_count=Count('reviewsdoctors', filter=Q(reviewsdoctors__is_visible=True)),
+        ).filter(is_visible=True).order_by('-average_rating')[:4]
+        # doctors = CollaboratorDoctor.objects.filter(is_visible=True)
+
+        # Serialize the clinics data
+        serializer = DoctorComplexProfileSerializer(doctors, many=True)
+
+        # Get the first 4 reviews for each clinic and add them to the serialized clinic data
+        for i, clinic in enumerate(doctors):
+            reviews = DoctorReview.objects.filter(is_visible=True, doctor=clinic)[:4]
+            if len(reviews) > 0:
+                reviews_serializer = ReviewDoctorSerializer(reviews, many=True)
+                serializer.data[i]['recent_reviews'] = reviews_serializer.data
+            else:
+                serializer.data[i]['recent_reviews'] = []
+
+        return Response(serializer.data)
+
 
 class ClinicDetailAPIView(RetrieveAPIView):
     queryset = Clinic.objects.annotate(
@@ -225,8 +248,8 @@ class DoctorPagination(pagination.PageNumberPagination):
 class DoctorList(generics.ListAPIView):
     serializer_class = DoctorComplexProfileSerializer
     queryset = CollaboratorDoctor.objects.annotate(
-            average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
-            review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
+            average_rating=Avg('reviewsdoctors__rating', filter=Q(reviewsdoctors__is_visible=True)),
+            review_count=Count('reviewsdoctors', filter=Q(reviewsdoctors__is_visible=True)),
         ).filter(is_visible=True)
     pagination_class = ClinicPagination
 
@@ -269,8 +292,8 @@ class DoctorList(generics.ListAPIView):
 
 class DoctorDetailAPIView(RetrieveAPIView):
     queryset = CollaboratorDoctor.objects.annotate(
-            average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
-            review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
+            average_rating=Avg('reviewsdoctors__rating', filter=Q(reviewsdoctors__is_visible=True)),
+            review_count=Count('reviewsdoctors', filter=Q(reviewsdoctors__is_visible=True)),
         ).filter(is_visible=True)
     serializer_class = DoctorComplexProfileSerializer
     lookup_field = 'id'
