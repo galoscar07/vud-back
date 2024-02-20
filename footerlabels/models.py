@@ -36,7 +36,7 @@ class Footerlabels(models.Model):
 
 
 class MedicalUnityTypes(models.Model):
-    label = models.CharField(max_length=60)
+    label = models.CharField(max_length=255)
 
     class Meta:
         verbose_name = 'Tip Unitate Medicala'
@@ -47,7 +47,7 @@ class MedicalUnityTypes(models.Model):
 
 
 class AcademicDegree(models.Model):
-    label = models.CharField(max_length=60)
+    label = models.CharField(max_length=255)
 
     class Meta:
         verbose_name = 'Grad Medical'
@@ -58,7 +58,7 @@ class AcademicDegree(models.Model):
 
 
 class Speciality(models.Model):
-    label = models.CharField(max_length=60)
+    label = models.CharField(max_length=255)
 
     class Meta:
         verbose_name = 'Specialitate'
@@ -69,7 +69,7 @@ class Speciality(models.Model):
 
 
 class MedicalSkills(models.Model):
-    label = models.CharField(max_length=60)
+    label = models.CharField(max_length=255)
 
     class Meta:
         verbose_name = 'Competenta'
@@ -80,7 +80,7 @@ class MedicalSkills(models.Model):
 
 
 class ClinicSpecialities(models.Model):
-    label = models.CharField(max_length=60)
+    label = models.CharField(max_length=255)
 
     class Meta:
         verbose_name = 'Specialitate Unitate'
@@ -91,7 +91,7 @@ class ClinicSpecialities(models.Model):
 
 
 class MedicalFacilities(models.Model):
-    label = models.CharField(max_length=60)
+    label = models.CharField(max_length=255)
     icon = models.ImageField(upload_to=upload_path_facilities, blank=True, null=True)
 
     class Meta:

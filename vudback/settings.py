@@ -12,24 +12,58 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 import datetime
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-# TODO .env file
-SECRET_KEY = 'django-insecure-6vzevt241lb^)k)5qj=^#w1&*btut9inc_4c-#i_^gzjm34gl7'
+environment = os.environ.get('OS_ENVIRON')
 
-# WEBSITE_URL = 'https://vreaudoctor.ro/'
-WEBSITE_URL = 'https://vud.active.ro/'
-# WEBSITE_URL = '127.0.0.1:3000/'
+print(environment, "HEEREEE")
+
+if environment == 'STAGING':
+    WEBSITE_URL = os.environ.get('MAILING_URL_STAGING')
+    DEBUG = True
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('DB_NAME_STAGING'),
+            'USER': os.environ.get('DB_USER_STAGING'),
+            'PASSWORD': os.environ.get('DB_PASS_STAGING'),
+            'HOST': os.environ.get('DB_HOST_STAGING'),
+            'PORT': os.environ.get('DB_PORT_STAGING'),
+        }
+    }
+elif environment == 'PROD':
+    WEBSITE_URL = os.environ.get('MAILING_URL_PROD')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('DB_NAME_PROD'),
+            'USER': os.environ.get('DB_USER_PROD'),
+            'PASSWORD': os.environ.get('DB_PASS_PROD'),
+            'HOST': os.environ.get('DB_HOST_PROD'),
+            'PORT': os.environ.get('DB_PORT_PROD'),
+        }
+    }
+else:
+    WEBSITE_URL = os.environ.get('MAILING_URL_LOCAL')
+    DEBUG = True
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_USER_MODEL = 'authentication.User'
-DEBUG = True
 
 ALLOWED_HOSTS = [
+    '92.114.33.100',
     '127.0.0.1',
     'vud-be.active.ro',
     'vud-fe.active.ro'
@@ -105,16 +139,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'vudback.wsgi.application'
 
-# TODO set the env variable
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 
 REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'error',
@@ -165,15 +191,13 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# TODO set the env variables
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USER_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_HOST = 'smtp.mail.yahoo.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+
+EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS')
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -181,4 +205,3 @@ STATIC_URL = '/staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/mediafiles/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
-

@@ -4,12 +4,12 @@ from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from string import Template
+from vudback.settings import EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 
 from django.template.loader import render_to_string
 
-# SENDER = 'vudpentrumine@gmail.com'
-SENDER = 'vudpentrumine@gmail.com'
-SENDER_PASSWORD = 'lsytmnyjrivwzgkk'
+SENDER = EMAIL_HOST_USER
+SENDER_PASSWORD = EMAIL_HOST_PASSWORD
 
 EMAIL_TEMPLATES = {
     'register':  Template('''
