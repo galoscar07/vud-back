@@ -267,7 +267,7 @@ class UpdateAdminData(APIView):
                 clinic_profile.county = request.data.get('county', '')
                 clinic_profile.street = request.data.get('street', '')
                 clinic_profile.number = request.data.get('number', '')
-                if clinic_profile.step <= 3:
+                if int(clinic_profile.step) <= 3:
                     clinic_profile.step = 3
                 clinic_profile.save()
                 doc1 = Document.objects.create(owner=user, file=file1)
@@ -307,7 +307,7 @@ class UpdateClinicTypeData(APIView):
                 for elem in list_of_clinic_types:
                     clinic_type = MedicalUnityTypes.objects.get(id=elem)
                     clinic_profile.medical_unit_types.add(clinic_type)
-                if clinic_profile.step <= 4:
+                if int(clinic_profile.step) <= 4:
                     clinic_profile.step = 4
                 clinic_profile.save()
                 data = ClinicProfileSerializer(clinic_profile).data
@@ -378,8 +378,10 @@ class UpdateClinicProfileView(APIView):
         clinic_profile.clinic_schedule = clinic_schedule
         clinic_profile.profile_picture = profile_picture
 
-        if clinic_profile.step <= 5:
+        if int(clinic_profile.step) <= 5:
             clinic_profile.step = 5
+
+        clinic_profile.clinic_specialities.clear()
 
         for cs in clinic_specialities:
             try:
@@ -387,6 +389,8 @@ class UpdateClinicProfileView(APIView):
                 clinic_profile.clinic_specialities.add(clinic_spec)
             except ClinicSpecialities.DoesNotExist:
                 pass
+
+        clinic_profile.unity_facilities.clear()
 
         for cf in clinic_facilities:
             try:
@@ -401,6 +405,7 @@ class UpdateClinicProfileView(APIView):
         if len(clinics) > 200:
             return Response({"error": "Nu poti adaug mai mult de 200 de clinici"}, status=400)
 
+        clinic_profile.collaborator_doctor.clear()
         for doc in doctors:
             try:
                 doctor = CollaboratorDoctor.objects.get(id=doc)
@@ -415,19 +420,20 @@ class UpdateClinicProfileView(APIView):
             except Exception:
                 pass
 
+        clinic_profile.collaborator_clinic.clear()
         for clinic in clinics:
             try:
                 clin = Clinic.objects.get(id=clinic)
-                clinic_profile.collaborator_doctor.add(clin)
+                clinic_profile.collaborator_clinic.add(clin)
                 data = {
                     'email': clin.primary_email,
                     'to_name': clin.clinic_name,
                     'from_nane': clinic_name,
-                    'profile_link': 'https://www.vud.active.ro/clinic-page/?id=' + clinic_profile.id
+                    'profile_link': 'https://www.vud.active.ro/clinic-page/?id=' + str(clinic_profile.id)
                 }
-                Util.send_email(data=data, email_type='notification-invited-collab-doctor-to-clinic')
-            except Exception:
-                pass
+                # Util.send_email(data=data, email_type='invite-part-of-team')
+            except Exception as e:
+                print(e)
 
         # Send email thanks sing up
         data = {
@@ -498,6 +504,7 @@ class UpdateDoctorProfileView(APIView):
         if int(doctor_profile.step) <= 5:
             doctor_profile.step = 5
 
+        doctor_profile.academic_degree.clear()
         for ad in academic_degree:
             try:
                 doc_ad = AcademicDegree.objects.get(id=ad)
@@ -505,6 +512,7 @@ class UpdateDoctorProfileView(APIView):
             except AcademicDegree.DoesNotExist:
                 pass
 
+        doctor_profile.speciality.clear()
         for spec in speciality:
             try:
                 doc_spec = Speciality.objects.get(id=spec)
@@ -512,6 +520,7 @@ class UpdateDoctorProfileView(APIView):
             except Speciality.DoesNotExist:
                 pass
 
+        doctor_profile.medical_skill.clear()
         for ms in medical_skill:
             try:
                 doc_ms = MedicalSkills.objects.get(id=ms)
@@ -527,9 +536,10 @@ class UpdateDoctorProfileView(APIView):
         if len(clinics) > 200:
             return Response({"error": "Nu poti adaug mai mult de 200 de clinici"}, status=400)
 
-        if not file1 or not file2:
-            return Response({"error": "Nu s-au incarcat documentele"}, status=400)
+        # if not file1 or not file2:
+        #     return Response({"error": "Nu s-au incarcat documentele"}, status=400)
 
+        doctor_profile.collaborator_doctor.clear()
         for doc in doctors:
             try:
                 doctor = CollaboratorDoctor.objects.get(id=doc)
@@ -544,6 +554,7 @@ class UpdateDoctorProfileView(APIView):
             except Exception:
                 pass
 
+        doctor_profile.collaborator_clinic.clear()
         for clinic in clinics:
             try:
                 clin = Clinic.objects.get(id=clinic)
@@ -558,10 +569,11 @@ class UpdateDoctorProfileView(APIView):
             except Exception:
                 pass
 
-        doc1 = Document.objects.create(owner=user, file=file1)
-        doc2 = Document.objects.create(owner=user, file=file2)
-        doc1.save()
-        doc2.save()
+        if file1 and file2:
+            doc1 = Document.objects.create(owner=user, file=file1)
+            doc2 = Document.objects.create(owner=user, file=file2)
+            doc1.save()
+            doc2.save()
 
         data = {
             'email': user.email

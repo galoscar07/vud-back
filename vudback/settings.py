@@ -23,8 +23,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 environment = os.environ.get('OS_ENVIRON')
 
-print(environment, "HEEREEE")
-
 if environment == 'STAGING':
     WEBSITE_URL = os.environ.get('MAILING_URL_STAGING')
     DEBUG = True

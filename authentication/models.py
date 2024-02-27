@@ -103,7 +103,7 @@ class Clinic(models.Model):
     number = models.CharField(max_length=255)
 
     # Step will be the step in the auth in which the user is
-    step = models.CharField(max_length=2, default=0, blank=False)
+    step = models.IntegerField(default=0, blank=False)
 
     # Clinics Data
     profile_picture = models.ImageField(upload_to=upload_path_clinic, blank=True, null=True)
@@ -201,7 +201,7 @@ class CollaboratorDoctor(models.Model):
     collaborator_clinic = models.ManyToManyField(Clinic, blank=True)
 
     # Step
-    step = models.CharField(max_length=2, default=0, blank=False)
+    step = models.IntegerField(default=0, blank=False)
 
     # Is visible
     is_visible = models.BooleanField(default=False)

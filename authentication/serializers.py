@@ -125,11 +125,6 @@ class UserUpdateUserProfileSerializer(serializers.ModelSerializer):
         fields = ['is_clinic', 'is_doctor']
 
 
-class DoctorProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CollaboratorDoctor
-        fields = '__all__'
-
 
 class ReviewDoctorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -197,6 +192,15 @@ class DoctorComplexProfileSerializer(serializers.ModelSerializer):
         serializer = ReviewDoctorSerializer(visible_reviews, many=True)
         return serializer.data
 
+    class Meta:
+        model = CollaboratorDoctor
+        fields = '__all__'
+
+class DoctorProfileSerializer(serializers.ModelSerializer):
+    collaborator_doctor = CollaboratorDoctorSerializer(many=True, read_only=True)
+    collaborator_clinic = ClinicProfileNamesSerializer(many=True, read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
+    review_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = CollaboratorDoctor
         fields = '__all__'
