@@ -150,6 +150,21 @@ EMAIL_TEMPLATES = {
         </body>
     </html>
     '''),
+    'send-clinic-email': Template('''
+    <html>
+        <body>
+            <div style="margin-top: 40px; width: 100%; height: 200px; background-color: #1BB583; display: flex; flex-direction: row; justify-content: center; align-items: center; color: white;">
+                <img src='cid:myimageid' width="160" height="160" >
+                <h1 style="color: #FFFFFF">Ai primit o cerere de conectare de pe Vreaudoctor.ro</h1>
+            </div>
+            <div style="margin-top: 30px;">
+               <p>Buna ziua, $clinic_name</p>
+               <p>$client_name a completat un formular de contact pe site-ul VreauDoctor.ro. Email-ul de contact este: $client_email. Mesajul acestuia pentru dumneavoastra este: </p>
+               <p>$client_message</p>
+            </div>
+        </body>
+    </html>
+    '''),
 }
 
 
@@ -272,4 +287,27 @@ class Util:
                 "template": template_processed,
             }
             send_email(message=message)
+
+        if email_type == 'send-clinic-email':
+            template_processed = EMAIL_TEMPLATES['send-clinic-email'].substitute(
+                clinic_name=data['clinic_name'], client_name=data['client_name'], client_email=data['client_email'],
+                client_message=data['client_message'])
+            message = {
+                "from_email": SENDER,
+                "from_name": "Vreau Doctor",
+                "to_email": data['clinic_email'],
+                "subject": "Cerere de conectare din partea VreauDoctor",
+                "template": template_processed,
+            }
+            send_email(message=message)
+
+            if data['send_copy_email']:
+                message = {
+                    "from_email": SENDER,
+                    "from_name": "Vreau Doctor",
+                    "to_email": data['client_email'],
+                    "subject": "Cerere de conectare din partea VreauDoctor",
+                    "template": template_processed,
+                }
+                send_email(message=message)
 

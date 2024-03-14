@@ -1,6 +1,7 @@
+import requests
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Q, Count
-from django_crontab import models
+from django.http import JsonResponse
 from rest_framework import generics,pagination
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
@@ -9,11 +10,13 @@ from rest_framework.views import APIView
 from authentication.models import Clinic, ClinicReview, CollaboratorDoctor, DoctorReview
 from authentication.serializers import ClinicProfileSerializer, ReviewSerializer, ClinicProfileSimpleSerializer, \
     DoctorComplexProfileSerializer, ReviewDoctorSerializer, ClinicProfileNamesSerializer
+from authentication.utils import Util
 from footerlabels.models import Footerlabels, MedicalUnityTypes, AcademicDegree, Speciality, MedicalSkills, \
     ClinicSpecialities, MedicalFacilities, Newsletter, BannerCards, AddSense, BlogPost, Tag
 from footerlabels.serializers import FooterlabelsSerializer, MedicalUnityTypesSerializer, AcademicDegreeSerializer, \
     SpecialitySerializer, MedicalSkillsSerializer, ClinicSpecialitiesSerializer, MedicalFacilitiesSerializer, \
     BannerCardsSerializer, AddsCardsSerializer, BlogPostSerializer, TagSerializer
+from vudback.settings import RECAPCHA_KEY
 
 
 class FooterLabelList(APIView):
@@ -301,44 +304,67 @@ class DoctorDetailAPIView(RetrieveAPIView):
 
 class ReviewDoctorCreate(APIView):
     def post(self, request):
-        doctor_id = request.query_params.get('doctor_id', None)
-        # Get the clinic instance
-        try:
-            doctor = CollaboratorDoctor.objects.get(id=doctor_id)
-        except CollaboratorDoctor.DoesNotExist:
-            return Response({'error': 'Doctor not found.'}, status=404)
+        r = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={
+                'secret': RECAPCHA_KEY,
+                'response': request.data['g-recaptcha-response'],
+                # 'remoteip': get_client_ip(self.request),  # Optional
+            }
+        )
 
-        copy = request.data
-        copy["doctor"] = doctor.id
-        # Create a new Review object
-        serializer = ReviewDoctorSerializer(data=copy)
+        if r.json()['success']:
+            doctor_id = request.query_params.get('doctor_id', None)
+            # Get the clinic instance
+            try:
+                doctor = CollaboratorDoctor.objects.get(id=doctor_id)
+            except CollaboratorDoctor.DoesNotExist:
+                return Response({'error': 'Doctor not found.'}, status=404)
 
-        if serializer.is_valid():
-            serializer.save(doctor=doctor)
-            return Response(serializer.data, status=201)
-        else:
-            return Response(serializer.errors, status=400)
+            copy = request.data
+            copy["doctor"] = doctor.id
+            # Create a new Review object
+            serializer = ReviewDoctorSerializer(data=copy)
+
+            if serializer.is_valid():
+                serializer.save(doctor=doctor)
+                return Response(serializer.data, status=201)
+            else:
+                return Response(serializer.errors, status=400)
+        return Response({"error": "Captcha nu e valid."}, status=400)
 
 
 class ReviewCreate(APIView):
     def post(self, request):
-        clinic_id = request.query_params.get('clinic_id', None)
-        # Get the clinic instance
-        try:
-            clinic = Clinic.objects.get(id=clinic_id)
-        except Clinic.DoesNotExist:
-            return Response({'error': 'Clinic not found.'}, status=404)
+        r = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={
+                'secret': RECAPCHA_KEY,
+                'response': request.data['g-recaptcha-response'],
+                # 'remoteip': get_client_ip(self.request),  # Optional
+            }
+        )
 
-        copy = request.data
-        copy["clinic"] = clinic.id
-        # Create a new Review object
-        serializer = ReviewSerializer(data=copy)
+        if r.json()['success']:
+            clinic_id = request.query_params.get('clinic_id', None)
+            # Get the clinic instance
+            try:
+                clinic = Clinic.objects.get(id=clinic_id)
+            except Clinic.DoesNotExist:
+                return Response({'error': 'Clinic not found.'}, status=404)
 
-        if serializer.is_valid():
-            serializer.save(clinic=clinic)
-            return Response(serializer.data, status=201)
+            copy = request.data
+            copy["clinic"] = clinic.id
+            # Create a new Review object
+            serializer = ReviewSerializer(data=copy)
+
+            if serializer.is_valid():
+                serializer.save(clinic=clinic)
+                return Response(serializer.data, status=201)
+            else:
+                return Response(serializer.errors, status=400)
         else:
-            return Response(serializer.errors, status=400)
+            return Response({"error": "Capcha nu e valid."}, status=400)
 
 
 class BlogPostListAPIView(generics.ListAPIView):
@@ -360,6 +386,51 @@ class BlogPostDetailAPIView(generics.RetrieveAPIView):
 class TagListAPIView(generics.ListAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+
+class SendMessageClinic(generics.GenericAPIView):
+    def post(self, request):
+        r = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={
+                'secret': RECAPCHA_KEY,
+                'response': request.data['g-recaptcha-response'],
+                # 'remoteip': get_client_ip(self.request),  # Optional
+            }
+        )
+
+        if r.json()['success']:
+            # Successfuly validated
+            # Handle the submission, with confidence!
+            data = request.data
+            email = data.get('email', '')
+            name = data.get('name', '')
+            message = data.get('message', '')
+            checkmark_if_send_copy = data.get('checkmarkIfSendCopy', False)
+            clinic_id = data.get('clinicId', None)
+
+            try:
+                clinic = Clinic.objects.filter(id=clinic_id)[0]
+                if not clinic:
+                    return JsonResponse({'error': 'Error: Clinic doesn\'t exists'})
+            except Exception as e:
+                print(e)
+                return JsonResponse({'error': 'Error: Clinic doesn\'t exists'})
+
+            try:
+                data = {
+                    'client_email': email,
+                    'client_name': name,
+                    'client_message': message,
+                    'clinic_email': clinic.primary_email,
+                    'clinic_name': clinic.clinic_name,
+                    'send_copy_email': checkmark_if_send_copy
+                }
+                Util.send_email(data=data, email_type='send-clinic-email')
+            except Exception as e:
+                return JsonResponse({'error': 'Sending email'})
+            return JsonResponse({'message': 'Success'})
+
+        return JsonResponse({'error': 'ReCAPTCHA not verified.'})
 
 
 class ClinicNamesListAPIView(generics.ListAPIView):

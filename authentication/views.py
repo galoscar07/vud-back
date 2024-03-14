@@ -5,6 +5,7 @@ import django.db
 import jwt
 import json
 
+import requests
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.conf import settings
 from django.utils.encoding import smart_bytes, smart_str, DjangoUnicodeDecodeError
@@ -25,7 +26,7 @@ from drf_yasg import openapi
 
 from footerlabels.models import MedicalUnityTypes, ClinicSpecialities, MedicalFacilities, AcademicDegree, Speciality, \
     MedicalSkills
-from vudback.settings import WEBSITE_URL
+from vudback.settings import WEBSITE_URL, RECAPCHA_KEY
 from .models import User, Clinic, Document, RequestToRedeemClinic, CollaboratorDoctor, RequestToRedeemDoctor
 from .utils import Util
 
@@ -34,24 +35,36 @@ class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
 
     def post(self, request):
-        user = request.data
-        serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        user_data = serializer.data
+        r = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={
+                'secret': RECAPCHA_KEY,
+                'response': request.data['g-recaptcha-response'],
+                # 'remoteip': get_client_ip(self.request),  # Optional
+            }
+        )
 
-        user = User.objects.get(email=user_data['email'])
-        token = RefreshToken.for_user(user).access_token
+        if r.json()['success']:
+            user = request.data
+            serializer = self.serializer_class(data=user)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            user_data = serializer.data
 
-        absolute_url = f'{WEBSITE_URL}email-verification/{str(token)}/'
+            user = User.objects.get(email=user_data['email'])
+            token = RefreshToken.for_user(user).access_token
 
-        data = {
-            'url': absolute_url,
-            'email': user.email
-        }
-        Util.send_email(data=data, email_type='verify-email')
+            absolute_url = f'{WEBSITE_URL}email-verification/{str(token)}/'
 
-        return Response(user_data, status=status.HTTP_201_CREATED)
+            data = {
+                'url': absolute_url,
+                'email': user.email
+            }
+            Util.send_email(data=data, email_type='verify-email')
+
+            return Response(user_data, status=status.HTTP_201_CREATED)
+        else:
+            Response({"error": 'Captcha nu a fost validat'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class VerifyEmail(views.APIView):
@@ -106,10 +119,22 @@ class LoginAPIView(generics.GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        r = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={
+                'secret': RECAPCHA_KEY,
+                'response': request.data['g-recaptcha-response'],
+                # 'remoteip': get_client_ip(self.request),  # Optional
+            }
+        )
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if r.json()['success']:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            Response({"error": 'Captcha nu a fost validat'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RequestPasswordResetAPIView(APIView):
@@ -647,92 +672,116 @@ def invite_collaborator_clinic(request):
 
 @api_view(['POST'])
 def redeem_clinic_request(request):
-    # Get parameters from request
-    first_name = request.data.get('first_name', '')
-    last_name = request.data.get('last_name', '')
-    email = request.data.get('email', '')
-    phone = request.data.get('phone', '')
-    company_role = request.data.get('company_role', '')
-    message = request.data.get('message', '')
-    clinic_id = request.data.get('clinic_id', '')
-    file1 = request.data.get('file1', None)
-    file2 = request.data.get('file2', None)
-
-    # Generate random password
-    password = ''.join(choices(string.ascii_letters + string.digits, k=12))
-
-    # Create new user
-    try:
-        user = User.objects.create_user(
-            username=email,
-            email=email,
-            password=password,
-        )
-        user.save()
-    except Exception:
-        return Response({'error': True})
-
-    user.first_name = first_name
-    user.last_name = last_name
-    user.email = email
-    user.save()
-
-    # Create new request to sign up model
-    RequestToRedeemClinic.objects.create(
-        user=user,
-        phone=phone,
-        company_role=company_role,
-        clinic_to_redeem=clinic_id,
-        message=message,
+    r = requests.post(
+        'https://www.google.com/recaptcha/api/siteverify',
+        data={
+            'secret': RECAPCHA_KEY,
+            'response': request.data['g-recaptcha-response'],
+            # 'remoteip': get_client_ip(self.request),  # Optional
+        }
     )
 
-    if file1:
-        Document.objects.create(owner=user, file=file1)
-    if file2:
-        Document.objects.create(owner=user, file=file2)
+    if r.json()['success']:
+        # Get parameters from request
+        first_name = request.data.get('first_name', '')
+        last_name = request.data.get('last_name', '')
+        email = request.data.get('email', '')
+        phone = request.data.get('phone', '')
+        company_role = request.data.get('company_role', '')
+        message = request.data.get('message', '')
+        clinic_id = request.data.get('clinic_id', '')
+        file1 = request.data.get('file1', None)
+        file2 = request.data.get('file2', None)
 
-    return Response({'success': True})
+        # Generate random password
+        password = ''.join(choices(string.ascii_letters + string.digits, k=12))
+
+        # Create new user
+        try:
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=password,
+            )
+            user.save()
+        except Exception:
+            return Response({'error': True})
+
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.save()
+
+        # Create new request to sign up model
+        RequestToRedeemClinic.objects.create(
+            user=user,
+            phone=phone,
+            company_role=company_role,
+            clinic_to_redeem=clinic_id,
+            message=message,
+        )
+
+        if file1:
+            Document.objects.create(owner=user, file=file1)
+        if file2:
+            Document.objects.create(owner=user, file=file2)
+
+        return Response({'success': True})
+    else:
+        return Response({"error": "Captcha nu e valid."}, status=400)
 
 
 @api_view(['POST'])
 def redeem_doctor_request(request):
-    # Get parameters from request
-    first_name = request.data.get('first_name', '')
-    last_name = request.data.get('last_name', '')
-    email = request.data.get('email', '')
-    phone = request.data.get('phone', '')
-    message = request.data.get('message', '')
-    doctor = request.data.get('doctor_id', '')
-    file1 = request.data.get('file1', None)
-    file2 = request.data.get('file2', None)
-
-    # Generate random password
-    password = ''.join(choices(string.ascii_letters + string.digits, k=12))
-
-    # Create new user
-    try:
-        user = User.objects.create_user(
-            username=email,
-            email=email,
-            password=password,
-        )
-    except Exception:
-        return Response({'error': True})
-
-    user.first_name = first_name
-    user.last_name = last_name
-
-    # Create new request to sign up model
-    RequestToRedeemDoctor.objects.create(
-        user=user,
-        phone=phone,
-        doctor_to_redeem=doctor,
-        message=message,
+    r = requests.post(
+        'https://www.google.com/recaptcha/api/siteverify',
+        data={
+            'secret': RECAPCHA_KEY,
+            'response': request.data['g-recaptcha-response'],
+            # 'remoteip': get_client_ip(self.request),  # Optional
+        }
     )
 
-    if file1:
-        Document.objects.create(owner=user, file=file1)
-    if file2:
-        Document.objects.create(owner=user, file=file2)
+    if r.json()['success']:
+        # Get parameters from request
+        first_name = request.data.get('first_name', '')
+        last_name = request.data.get('last_name', '')
+        email = request.data.get('email', '')
+        phone = request.data.get('phone', '')
+        message = request.data.get('message', '')
+        doctor = request.data.get('doctor_id', '')
+        file1 = request.data.get('file1', None)
+        file2 = request.data.get('file2', None)
 
-    return Response({'success': True})
+        # Generate random password
+        password = ''.join(choices(string.ascii_letters + string.digits, k=12))
+
+        # Create new user
+        try:
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=password,
+            )
+        except Exception:
+            return Response({'error': True})
+
+        user.first_name = first_name
+        user.last_name = last_name
+
+        # Create new request to sign up model
+        RequestToRedeemDoctor.objects.create(
+            user=user,
+            phone=phone,
+            doctor_to_redeem=doctor,
+            message=message,
+        )
+
+        if file1:
+            Document.objects.create(owner=user, file=file1)
+        if file2:
+            Document.objects.create(owner=user, file=file2)
+
+        return Response({'success': True})
+    else:
+        return Response({"error": "Captcha nu e valid."}, status=400)

@@ -23,6 +23,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 environment = os.environ.get('OS_ENVIRON')
 
+RECAPCHA_KEY = os.environ.get('CAPCHA_SECRET_KEY')
+
 if environment == 'STAGING':
     WEBSITE_URL = os.environ.get('MAILING_URL_STAGING')
     DEBUG = True

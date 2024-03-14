@@ -16,6 +16,7 @@ urlpatterns = [
     path('blogposts/', views.BlogPostListAPIView.as_view(), name='blogpost-list'),
     path('blogposts/<int:pk>/', views.BlogPostDetailAPIView.as_view(), name='blogpost-detail'),
     path('tags/', views.TagListAPIView.as_view(), name='tag-list'),
+    path('send-message-clinic/', views.SendMessageClinic.as_view(), name='send-message-clinic'),
     path('clinics-list/', views.ClinicNamesListAPIView.as_view(), name='clinic-list'),
 ]
 
