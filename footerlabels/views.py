@@ -125,54 +125,59 @@ class ClinicPagination(pagination.PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
 
+def replace_romanian_characters(text):
+    replacements = {
+        'ă': 'a', 'â': 'a', 'î': 'i', 'ș': 's', 'ş': 's', 'ț': 't', 'ţ': 't',
+        'Ă': 'a', 'Â': 'a', 'Î': 'i', 'Ș': 's', 'Ş': 's', 'Ț': 't', 'Ţ': 't'
+    }
+    for romanian_char, replacement in replacements.items():
+        text = text.replace(romanian_char, replacement)
+    return text
 
 class ClinicList(generics.ListAPIView):
     serializer_class = ClinicProfileSerializer
     queryset = Clinic.objects.annotate(
-            average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
-            review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
-        ).filter(is_visible=True)
+        average_rating=Avg('reviews__rating', filter=Q(reviews__is_visible=True)),
+        review_count=Count('reviews', filter=Q(reviews__is_visible=True)),
+    ).filter(is_visible=True)
     pagination_class = ClinicPagination
 
     def get_queryset(self):
         queryset = self.queryset
 
         # Filtering by clinic name
-        name = self.request.query_params.get('name', None)
-        if name is not None:
+        name = self.request.query_params.get('name')
+        if name:
             clinic_specialities = ClinicSpecialities.objects.filter(label__iexact=name)
-            if len(clinic_specialities) > 0:
-                specialities = []
-                for e in clinic_specialities:
-                    specialities.append(e.id)
-                queryset = queryset.filter(clinic_specialities__id__in=specialities)
-                return queryset
-
-            queryset = queryset.filter(clinic_name__icontains=name)
+            if clinic_specialities.exists():
+                specialities_ids = clinic_specialities.values_list('id', flat=True)
+                queryset = queryset.filter(clinic_specialities__id__in=specialities_ids)
+            else:
+                queryset = queryset.filter(clinic_name__icontains=name)
 
         # Filtering by town
-        town = self.request.query_params.get('town', [])
+        town = self.request.query_params.get('town')
         if town:
-            town = town.split("|")
-            queryset = queryset.filter(clinic_town__icontains=town[0])
+            town_list = replace_romanian_characters(town).split("|")
+            queryset = queryset.filter(clinic_town__in=town_list)
 
         # Filtering by specialities
-        specialities = self.request.query_params.get('clinic_specialities', [])
+        specialities = self.request.query_params.get('clinic_specialities', None)
         if specialities:
-            specialities = specialities.split("|")
-            queryset = queryset.filter(clinic_specialities__id__in=specialities)
+            specialities_list = specialities.split("|")
+            queryset = queryset.filter(clinic_specialities__id__in=specialities_list)
 
-        # Filtering by unity facilities
-        facilities = self.request.query_params.get('unit_facilities', [])
+        # Filtering by unit facilities
+        facilities = self.request.query_params.get('unit_facilities', None)
         if facilities:
-            facilities = facilities.split("|")
-            queryset = queryset.filter(unity_facilities__id__in=facilities)
+            facilities_list = facilities.split("|")
+            queryset = queryset.filter(unity_facilities__id__in=facilities_list)
 
-        # Filtering by unity type
-        unity = self.request.query_params.get('unity_types', [])
+        # Filtering by unit types
+        unity = self.request.query_params.get('unity_types', None)
         if unity:
-            unity = unity.split("|")
-            queryset = queryset.filter(medical_unit_types__id__in=unity)
+            unity_list = unity.split("|")
+            queryset = queryset.filter(medical_unit_types__id__in=unity_list)
 
         return queryset
 
